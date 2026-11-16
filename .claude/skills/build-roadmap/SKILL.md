@@ -29,7 +29,7 @@ Status values: `todo` · `in-progress` · `done`
 
 | # | Module | Roadmap phase | Checkpoint | Est. | Status | File |
 |---|---|---|---|---|---|---|
-| 01 | Repository and workspace | 0 | — | ½ wk | todo | [module-01](modules/module-01.md) |
+| 01 | Repository and workspace | 0 | — | ½ wk | in-progress | [module-01](modules/module-01.md) |
 | 02 | Local infrastructure | 1 | 1 Local foundation | ½ wk | todo | [module-02](modules/module-02.md) |
 | 03 | Graph model and seed | 2 | 2 Graph slice | 1 wk | todo | [module-03](modules/module-03.md) |
 | 04 | NVD + CISA KEV ingestion | 3 | 3 External intelligence | 1–1½ wk | todo | [module-04](modules/module-04.md) |
@@ -87,4 +87,4 @@ MCP names are generic; confirm the exact server/package and install steps before
 
 Append one line per completed task or module: `YYYY-MM-DD · module · task · result (commands run, pass/fail)`.
 
-- _(empty)_
+- 2026-11-15 · 01 · 0.1–0.7 · repo threatlens-ai created (private), skeleton, docs, CLAUDE.md, config files, README, ADR 0001 committed and pushed to main; .env verified ignored, git status clean. 0.8 pending (you).
