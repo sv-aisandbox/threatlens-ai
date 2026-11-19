@@ -1,0 +1,882 @@
+{
+ "resultsPerPage": 2,
+ "startIndex": 0,
+ "totalResults": 4,
+ "format": "NVD_CVE",
+ "version": "2.0",
+ "timestamp": "2026-11-19T15:35:26.614",
+ "vulnerabilities": [
+  {
+   "cve": {
+    "id": "CVE-2026-7233",
+    "sourceIdentifier": "cna@vuldb.com",
+    "published": "2026-04-28T07:16:04.067",
+    "lastModified": "2026-11-01T08:17:43.850",
+    "vulnStatus": "Modified",
+    "cveTags": [],
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "A vulnerability was determined in Artifex MuPDF. The impacted element is the function fz_subset_cff_for_gids of the file subset-cff.c of the component CFF Index Handler. This manipulation causes out-of-bounds read. The attack can only be executed locally. The exploit has been publicly disclosed and may be utilized. The project was informed of the problem early through a bug report but has not responded yet."
+     },
+     {
+      "lang": "es",
+      "value": "Se determinó una vulnerabilidad en Artifex MuPDF hasta 1.28.0. El elemento afectado es la función fz_subset_cff_for_gids del archivo subset-cff.c del componente Gestor de Índice CFF. Esta manipulación causa una lectura fuera de límites. El ataque solo puede ejecutarse localmente. El exploit ha sido divulgado públicamente y puede ser utilizado. El proyecto fue informado del problema tempranamente a través de un informe de error, pero aún no ha respondido."
+     }
+    ],
+    "affected": [
+     {
+      "source": "cna@vuldb.com",
+      "affectedData": [
+       {
+        "vendor": "Artifex",
+        "product": "MuPDF",
+        "cpes": [
+         "cpe:2.3:a:artifex:mupdf:*:*:*:*:*:*:*:*"
+        ],
+        "modules": [
+         "CFF Index Handler"
+        ],
+        "versions": [
+         {
+          "version": "1.24.0",
+          "status": "affected"
+         },
+         {
+          "version": "1.24.1",
+          "status": "affected"
+         },
+         {
+          "version": "1.24.2",
+          "status": "affected"
+         },
+         {
+          "version": "1.24.3",
+          "status": "affected"
+         },
+         {
+          "version": "1.24.4",
+          "status": "affected"
+         },
+         {
+          "version": "1.24.5",
+          "status": "affected"
+         },
+         {
+          "version": "1.24.6",
+          "status": "affected"
+         },
+         {
+          "version": "1.24.7",
+          "status": "affected"
+         },
+         {
+          "version": "1.24.8",
+          "status": "affected"
+         },
+         {
+          "version": "1.24.9",
+          "status": "affected"
+         },
+         {
+          "version": "1.24.10",
+          "status": "affected"
+         },
+         {
+          "version": "1.24.11",
+          "status": "affected"
+         },
+         {
+          "version": "1.25.0",
+          "status": "affected"
+         },
+         {
+          "version": "1.25.1",
+          "status": "affected"
+         },
+         {
+          "version": "1.25.2",
+          "status": "affected"
+         },
+         {
+          "version": "1.25.3",
+          "status": "affected"
+         },
+         {
+          "version": "1.25.4",
+          "status": "affected"
+         },
+         {
+          "version": "1.25.5",
+          "status": "affected"
+         },
+         {
+          "version": "1.25.6",
+          "status": "affected"
+         },
+         {
+          "version": "1.26.0",
+          "status": "affected"
+         },
+         {
+          "version": "1.26.1",
+          "status": "affected"
+         },
+         {
+          "version": "1.26.2",
+          "status": "affected"
+         },
+         {
+          "version": "1.26.3",
+          "status": "affected"
+         },
+         {
+          "version": "1.26.4",
+          "status": "affected"
+         },
+         {
+          "version": "1.26.5",
+          "status": "affected"
+         },
+         {
+          "version": "1.26.6",
+          "status": "affected"
+         },
+         {
+          "version": "1.26.7",
+          "status": "affected"
+         },
+         {
+          "version": "1.26.8",
+          "status": "affected"
+         },
+         {
+          "version": "1.26.9",
+          "status": "affected"
+         },
+         {
+          "version": "1.26.10",
+          "status": "affected"
+         },
+         {
+          "version": "1.26.11",
+          "status": "affected"
+         },
+         {
+          "version": "1.26.12",
+          "status": "affected"
+         },
+         {
+          "version": "1.27.0",
+          "status": "affected"
+         },
+         {
+          "version": "1.27.1",
+          "status": "affected"
+         },
+         {
+          "version": "1.27.2",
+          "status": "affected"
+         },
+         {
+          "version": "1.28.0",
+          "status": "affected"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "metrics": {
+     "cvssMetricV40": [
+      {
+       "source": "cna@vuldb.com",
+       "type": "Secondary",
+       "cvssData": {
+        "version": "4.0",
+        "vectorString": "CVSS:4.0/AV:L/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N/E:P/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "baseScore": 1.9,
+        "baseSeverity": "LOW",
+        "attackVector": "LOCAL",
+        "attackComplexity": "LOW",
+        "attackRequirements": "NONE",
+        "privilegesRequired": "LOW",
+        "userInteraction": "NONE",
+        "vulnConfidentialityImpact": "LOW",
+        "vulnIntegrityImpact": "NONE",
+        "vulnAvailabilityImpact": "NONE",
+        "subConfidentialityImpact": "NONE",
+        "subIntegrityImpact": "NONE",
+        "subAvailabilityImpact": "NONE",
+        "exploitMaturity": "PROOF_OF_CONCEPT",
+        "confidentialityRequirement": "NOT_DEFINED",
+        "integrityRequirement": "NOT_DEFINED",
+        "availabilityRequirement": "NOT_DEFINED",
+        "modifiedAttackVector": "NOT_DEFINED",
+        "modifiedAttackComplexity": "NOT_DEFINED",
+        "modifiedAttackRequirements": "NOT_DEFINED",
+        "modifiedPrivilegesRequired": "NOT_DEFINED",
+        "modifiedUserInteraction": "NOT_DEFINED",
+        "modifiedVulnConfidentialityImpact": "NOT_DEFINED",
+        "modifiedVulnIntegrityImpact": "NOT_DEFINED",
+        "modifiedVulnAvailabilityImpact": "NOT_DEFINED",
+        "modifiedSubConfidentialityImpact": "NOT_DEFINED",
+        "modifiedSubIntegrityImpact": "NOT_DEFINED",
+        "modifiedSubAvailabilityImpact": "NOT_DEFINED",
+        "Safety": "NOT_DEFINED",
+        "Automatable": "NOT_DEFINED",
+        "Recovery": "NOT_DEFINED",
+        "valueDensity": "NOT_DEFINED",
+        "vulnerabilityResponseEffort": "NOT_DEFINED",
+        "providerUrgency": "NOT_DEFINED"
+       }
+      }
+     ],
+     "cvssMetricV31": [
+      {
+       "source": "cna@vuldb.com",
+       "type": "Secondary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N",
+        "baseScore": 3.3,
+        "baseSeverity": "LOW",
+        "attackVector": "LOCAL",
+        "attackComplexity": "LOW",
+        "privilegesRequired": "LOW",
+        "userInteraction": "NONE",
+        "scope": "UNCHANGED",
+        "confidentialityImpact": "LOW",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "NONE"
+       },
+       "exploitabilityScore": 1.8,
+       "impactScore": 1.4
+      },
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:H",
+        "baseScore": 6.1,
+        "baseSeverity": "MEDIUM",
+        "attackVector": "LOCAL",
+        "attackComplexity": "LOW",
+        "privilegesRequired": "LOW",
+        "userInteraction": "NONE",
+        "scope": "UNCHANGED",
+        "confidentialityImpact": "LOW",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "HIGH"
+       },
+       "exploitabilityScore": 1.8,
+       "impactScore": 4.2
+      }
+     ],
+     "cvssMetricV2": [
+      {
+       "source": "cna@vuldb.com",
+       "type": "Secondary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "AV:L/AC:L/Au:S/C:P/I:N/A:N",
+        "baseScore": 1.7,
+        "accessVector": "LOCAL",
+        "accessComplexity": "LOW",
+        "authentication": "SINGLE",
+        "confidentialityImpact": "PARTIAL",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "NONE"
+       },
+       "baseSeverity": "LOW",
+       "exploitabilityScore": 3.1,
+       "impactScore": 2.9,
+       "acInsufInfo": false,
+       "obtainAllPrivilege": false,
+       "obtainUserPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "userInteractionRequired": false
+      }
+     ],
+     "ssvcV203": [
+      {
+       "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+       "ssvcData": {
+        "timestamp": "2026-04-29T15:14:06.670638Z",
+        "id": "CVE-2026-7233",
+        "options": [
+         {
+          "exploitation": "poc"
+         },
+         {
+          "automatable": "no"
+         },
+         {
+          "technicalImpact": "partial"
+         }
+        ],
+        "role": "CISA Coordinator",
+        "version": "2.0.3"
+       }
+      }
+     ]
+    },
+    "weaknesses": [
+     {
+      "source": "cna@vuldb.com",
+      "type": "Secondary",
+      "description": [
+       {
+        "lang": "en",
+        "value": "CWE-119"
+       },
+       {
+        "lang": "en",
+        "value": "CWE-125"
+       }
+      ]
+     }
+    ],
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:a:artifex:mupdf:*:*:*:*:*:*:*:*",
+          "versionEndIncluding": "1.27.2",
+          "matchCriteriaId": "296A0B90-FB84-41D4-8CEB-0AA45570E584"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "https://artifex.com/",
+      "source": "cna@vuldb.com",
+      "tags": [
+       "Product"
+      ]
+     },
+     {
+      "url": "https://bugs.ghostscript.com/show_bug.cgi?id=709328",
+      "source": "cna@vuldb.com",
+      "tags": [
+       "Exploit",
+       "Mitigation",
+       "Third Party Advisory"
+      ]
+     },
+     {
+      "url": "https://github.com/biniamf/pocs/tree/main/mupdf-cff-indexload-oobread",
+      "source": "cna@vuldb.com",
+      "tags": [
+       "Exploit"
+      ]
+     },
+     {
+      "url": "https://vuldb.com/cve/CVE-2026-7233",
+      "source": "cna@vuldb.com"
+     },
+     {
+      "url": "https://vuldb.com/submit/802590",
+      "source": "cna@vuldb.com",
+      "tags": [
+       "Exploit",
+       "Mitigation",
+       "Third Party Advisory",
+       "VDB Entry"
+      ]
+     },
+     {
+      "url": "https://vuldb.com/vuln/359840",
+      "source": "cna@vuldb.com",
+      "tags": [
+       "Exploit",
+       "Mitigation",
+       "Third Party Advisory",
+       "VDB Entry"
+      ]
+     },
+     {
+      "url": "https://vuldb.com/vuln/359840/cti",
+      "source": "cna@vuldb.com",
+      "tags": [
+       "Permissions Required",
+       "VDB Entry"
+      ]
+     },
+     {
+      "url": "https://bugs.ghostscript.com/show_bug.cgi?id=709328",
+      "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+      "tags": [
+       "Exploit",
+       "Mitigation",
+       "Third Party Advisory"
+      ]
+     },
+     {
+      "url": "https://vuldb.com/submit/802590",
+      "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+      "tags": [
+       "Exploit",
+       "Mitigation",
+       "Third Party Advisory",
+       "VDB Entry"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2026-10579",
+    "sourceIdentifier": "secalert@redhat.com",
+    "published": "2026-08-11T09:17:12.260",
+    "lastModified": "2026-11-01T01:17:15.780",
+    "vulnStatus": "Awaiting Analysis",
+    "cveTags": [],
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "A flaw was found in Picketlink Federation SAML; the unsolcited response handler would accept forged assertions with no verification or validation, permitting an unauthed attacker to authenticate as any principal in any role. This could lead to information disclosure, access to restricted operations, or other flaws."
+     }
+    ],
+    "affected": [
+     {
+      "source": "secalert@redhat.com",
+      "affectedData": [
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4.25",
+        "defaultStatus": "unaffected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform:7.4"
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-activemq-artemis",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:2.16.0-22.redhat_00057.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-glassfish-jsf",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:2.3.14-11.SP11_redhat_00001.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-ironjacamar",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:1.5.26-2.Final_redhat_00001.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-jackson-annotations",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:2.18.8-1.redhat_00003.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-jackson-core",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:2.18.8-1.redhat_00003.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-jackson-databind",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:2.18.8-1.redhat_00003.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-jackson-jaxrs-providers",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:2.18.8-1.redhat_00003.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-jackson-modules-base",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:2.18.8-1.redhat_00003.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-jackson-modules-java8",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:2.18.8-1.redhat_00003.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-jboss-remoting",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:5.0.31-3.SP2_redhat_00001.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-jboss-server-migration",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:1.10.0-46.Final_redhat_00044.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-netty",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:4.1.135-1.Final_redhat_00001.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-netty-transport-native-epoll",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:4.1.135-1.Final_redhat_00001.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-picketlink-bindings",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:2.5.5-30.SP12_redhat_00020.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-picketlink-federation",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:2.5.5-24.SP12_redhat_00016.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-undertow",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:2.2.40-2.SP3_redhat_00001.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7.4 ELS on RHEL 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/downloads/content/package-browser/",
+        "packageName": "eap7-wildfly",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform_els:7.4::el7"
+        ],
+        "versions": [
+         {
+          "version": "0:7.4.25-2.GA_redhat_00001.1.el7eap",
+          "lessThan": "*",
+          "versionType": "rpm",
+          "status": "unaffected"
+         }
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 7",
+        "defaultStatus": "affected",
+        "collectionURL": "https://access.redhat.com/jbossnetwork/restricted/listSoftware.html",
+        "packageName": "picketlink-federation",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform:7"
+        ]
+       },
+       {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 8",
+        "defaultStatus": "unaffected",
+        "collectionURL": "https://access.redhat.com/jbossnetwork/restricted/listSoftware.html",
+        "packageName": "picketlink-federation",
+        "cpes": [
+         "cpe:/a:redhat:jboss_enterprise_application_platform:8"
+        ]
+       }
+      ]
+     }
+    ],
+    "metrics": {
+     "cvssMetricV31": [
+      {
+       "source": "secalert@redhat.com",
+       "type": "Secondary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "baseScore": 9.8,
+        "baseSeverity": "CRITICAL",
+        "attackVector": "NETWORK",
+        "attackComplexity": "LOW",
+        "privilegesRequired": "NONE",
+        "userInteraction": "NONE",
+        "scope": "UNCHANGED",
+        "confidentialityImpact": "HIGH",
+        "integrityImpact": "HIGH",
+        "availabilityImpact": "HIGH"
+       },
+       "exploitabilityScore": 3.9,
+       "impactScore": 5.9
+      }
+     ],
+     "ssvcV203": [
+      {
+       "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+       "ssvcData": {
+        "timestamp": "2026-08-11T16:06:00.151230Z",
+        "id": "CVE-2026-10579",
+        "options": [
+         {
+          "exploitation": "none"
+         },
+         {
+          "automatable": "yes"
+         },
+         {
+          "technicalImpact": "total"
+         }
+        ],
+        "role": "CISA Coordinator",
+        "version": "2.0.3"
+       }
+      }
+     ]
+    },
+    "weaknesses": [
+     {
+      "source": "secalert@redhat.com",
+      "type": "Secondary",
+      "description": [
+       {
+        "lang": "en",
+        "value": "CWE-347"
+       }
+      ]
+     },
+     {
+      "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+      "type": "Secondary",
+      "description": [
+       {
+        "lang": "en",
+        "value": "CWE-347"
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "https://access.redhat.com/errata/RHSA-2026:53644",
+      "source": "secalert@redhat.com"
+     },
+     {
+      "url": "https://access.redhat.com/errata/RHSA-2026:53806",
+      "source": "secalert@redhat.com"
+     },
+     {
+      "url": "https://access.redhat.com/security/cve/CVE-2026-10579",
+      "source": "secalert@redhat.com"
+     },
+     {
+      "url": "https://bugzilla.redhat.com/show_bug.cgi?id=2480325",
+      "source": "secalert@redhat.com"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -50,4 +50,30 @@ uv run python -m ingestion.seed_loader   # idempotent; add --reset to start clea
 uv run pytest                            # tests run against the local Memgraph
 ```
 
+Real vulnerability data (NVD and CISA KEV). Create the `source_sync` table once, then sync on demand:
+
+```bash
+docker compose --profile migrate run --rm flyway        # apply database/migrations
+cd intelligence-service
+uv run python -m ingestion.cli sync kev                 # CISA KEV flags (no account needed)
+uv run python -m ingestion.cli sync nvd --since 2026-11-18   # NVD changes since a date (UTC)
+uv run python -m ingestion.cli import-cve CVE-2021-44228     # one CVE, for demos
+uv run python -m ingestion.cli status                   # last sync times and counters
+```
+
+Set `NVD_API_KEY` in `.env` for the higher NVD rate limit (free key: https://nvd.nist.gov/developers/request-an-api-key). Without a key the client slows itself to 5 requests per 30 seconds. The first NVD sync without `--since` covers the last 7 days.
+
+Tests use a disposable Memgraph on port 7688 (recorded fixtures, no live network):
+
+```bash
+docker compose --profile test up -d --wait memgraph-test
+cd intelligence-service && uv run pytest
+```
+
+Internal sync API (localhost only, needs `INTERNAL_API_TOKEN` in `.env`, sent as the `X-Internal-Token` header):
+
+```bash
+uv run uvicorn app.api:create_app --factory --host 127.0.0.1 --port 8000
+```
+
 Services listen on `127.0.0.1` only: Memgraph `7687`, PostgreSQL `5432`, Lab `3000`.

@@ -39,6 +39,37 @@ services:
       retries: 10
       start_period: 10s
 
+  # Disposable Memgraph for automated tests (no volume). Start with `--profile test`.
+  memgraph-test:
+    image: memgraph/memgraph-mage:3.14.0
+    profiles: [test]
+    ports:
+      - "127.0.0.1:7688:7687"
+    networks: [threatlens]
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'RETURN 1;' | mgconsole --output-format=csv | grep -q 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # Applies database/migrations to PostgreSQL: `docker compose --profile migrate run --rm flyway`
+  flyway:
+    image: flyway/flyway:13.13.0
+    profiles: [migrate]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      FLYWAY_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:?set POSTGRES_DB in .env}
+      FLYWAY_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
+      FLYWAY_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+    command: migrate
+    volumes:
+      - ./database/migrations:/flyway/sql:ro
+    networks: [threatlens]
+
   # Optional UI: start with `docker compose --profile lab up -d`
   memgraph-lab:
     image: memgraph/lab:3.14.3
