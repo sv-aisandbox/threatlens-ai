@@ -5,8 +5,10 @@ server context, never from model or tool input. All values are passed as paramet
 """
 
 from collections.abc import Iterable
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
+import psycopg
 from neo4j import Driver
 
 MATCH_STATUSES = frozenset({"confirmed", "possible", "not_affected", "unknown"})
@@ -35,6 +37,7 @@ RETURN
     a.environment AS environment,
     a.criticality AS criticality,
     a.internet_exposed AS internet_exposed,
+    a.inventory_imported_at AS inventory_imported_at,
     {software_id: s.software_id, vendor: s.vendor, product: s.product, version: s.version, cpe: s.cpe} AS software,
     v.cve_id AS cve_id,
     v.cvss_score AS cvss_score,
@@ -76,3 +79,57 @@ def get_affected_assets(
             :MAX_EVIDENCE_PER_ROW
         ]
     return rows
+
+
+STALE_AFTER = timedelta(hours=48)
+
+
+def get_affected_assets_with_freshness(
+    driver: Driver,
+    conn: psycopg.Connection,
+    tenant_id: str,
+    cve_id: str,
+    statuses: Iterable[str] = DEFAULT_STATUSES,
+    limit: int = 100,
+    now: datetime | None = None,
+    stale_after: timedelta = STALE_AFTER,
+) -> dict[str, Any]:
+    """Results plus both freshness timestamps (spec 20.3): intelligence sync and inventory import.
+
+    A recent CVE sync does not make an old inventory current, so each is reported and warned on separately.
+    """
+    from ingestion import source_sync
+    from ingestion.inventory_import import latest_import_time
+
+    results = get_affected_assets(driver, tenant_id, cve_id, statuses, limit)
+    sources = {r["source_id"]: r for r in source_sync.list_status(conn)}
+    now = now or datetime.now(UTC)
+    intel = {
+        "nvd_last_success_at": (sources.get("nvd") or {}).get("last_success_at"),
+        "kev_last_success_at": (sources.get("cisa_kev") or {}).get("last_success_at"),
+    }
+    inventory_at = latest_import_time(conn, tenant_id)
+    if inventory_at is None:  # e.g. the synthetic seed writes the graph without an import record
+        with driver.session() as session:
+            stamp = session.run(
+                "MATCH (a:Asset {tenant_id: $tenant_id}) RETURN max(a.inventory_imported_at) AS at",
+                tenant_id=tenant_id,
+            ).single()["at"]
+        if stamp:
+            inventory_at = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+
+    warnings: list[str] = []
+    for label, ts in (("NVD", intel["nvd_last_success_at"]), ("CISA KEV", intel["kev_last_success_at"]),
+                      ("Asset inventory", inventory_at)):
+        if ts is None:
+            warnings.append(f"{label} has never been {'imported' if label.startswith('Asset') else 'synced'}; results may be incomplete.")
+        elif now - ts > stale_after:
+            warnings.append(f"{label} data is older than {int(stale_after.total_seconds() // 3600)} hours (last: {ts.isoformat()}); results may be stale.")
+    return {
+        "results": results,
+        "freshness": {
+            "intelligence": {k: v.isoformat() if v else None for k, v in intel.items()},
+            "inventory_last_imported_at": inventory_at.isoformat() if inventory_at else None,
+        },
+        "warnings": warnings,
+    }

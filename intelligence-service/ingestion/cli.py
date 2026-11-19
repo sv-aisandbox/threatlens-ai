@@ -4,6 +4,8 @@
   uv run python -m ingestion.cli sync kev
   uv run python -m ingestion.cli import-cve CVE-2021-44228
   uv run python -m ingestion.cli status
+  uv run python -m ingestion.cli import-inventory --tenant TENANT-DEMO --file inventory.csv [--no-match]
+  uv run python -m ingestion.cli match
 """
 
 import argparse
@@ -14,8 +16,11 @@ from datetime import UTC, datetime
 
 import psycopg
 
+from pathlib import Path
+
 from app.config import get_driver, nvd_api_key, pg_conninfo
-from ingestion import source_sync, sync
+from correlation.match_service import run_matching
+from ingestion import inventory_import, source_sync, sync
 from ingestion.nvd_client import NvdClient
 
 
@@ -34,6 +39,11 @@ def main(argv: list[str] | None = None) -> int:
     c = sub.add_parser("import-cve")
     c.add_argument("cve_id")
     sub.add_parser("status")
+    i = sub.add_parser("import-inventory")
+    i.add_argument("--tenant", required=True, help="tenant id, e.g. TENANT-DEMO (trusted operator input)")
+    i.add_argument("--file", required=True, type=Path)
+    i.add_argument("--no-match", action="store_true", help="skip matching the imported software")
+    sub.add_parser("match")
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
@@ -43,6 +53,19 @@ def main(argv: list[str] | None = None) -> int:
         with psycopg.connect(pg_conninfo()) as conn:
             if args.command == "status":
                 print(json.dumps(source_sync.list_status(conn), default=str, indent=2))
+                return 0
+            if args.command == "match":
+                print(json.dumps(run_matching(driver).__dict__, indent=2))
+                return 0
+            if args.command == "import-inventory":
+                fmt = "csv" if args.file.suffix.lower() == ".csv" else "json"
+                report = inventory_import.import_inventory(
+                    driver, conn, args.tenant, args.file.read_bytes(), fmt, args.file.name
+                )
+                out = report.as_dict()
+                if not args.no_match and report.software_ids:
+                    out["matching"] = run_matching(driver, report.software_ids).__dict__
+                print(json.dumps(out, indent=2))
                 return 0
             if args.command == "import-cve":
                 result = sync.import_single_cve(driver, conn, NvdClient(key), args.cve_id, api_key=key)

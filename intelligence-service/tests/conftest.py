@@ -6,7 +6,10 @@ import pytest
 from app.config import get_driver, get_test_driver, pg_conninfo
 from ingestion import seed_loader
 
-MIGRATION = seed_loader.REPO_ROOT / "database" / "migrations" / "V1__source_sync.sql"
+MIGRATIONS = sorted(
+    (seed_loader.REPO_ROOT / "database" / "migrations").glob("V*__*.sql"),
+    key=lambda f: int(f.name[1:].split("__")[0]),
+)
 
 
 # --- development Memgraph: only used by the synthetic-seed tests (they touch synthetic=true nodes only) ---
@@ -68,7 +71,8 @@ def pg_schema():
         pytest.fail(f"PostgreSQL not reachable; run `docker compose up -d --wait` ({type(exc).__name__})")
     admin.execute(f'CREATE SCHEMA "{schema}"')
     with psycopg.connect(pg_conninfo(), options=f"-c search_path={schema}") as setup:
-        setup.execute(MIGRATION.read_text())
+        for migration in MIGRATIONS:
+            setup.execute(migration.read_text())
     yield schema
     admin.execute(f'DROP SCHEMA "{schema}" CASCADE')
     admin.close()

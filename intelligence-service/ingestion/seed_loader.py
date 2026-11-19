@@ -7,7 +7,6 @@ All seed nodes carry synthetic=true so `--reset` removes only synthetic data.
 import argparse
 import hashlib
 import json
-import re
 from pathlib import Path
 from typing import Any
 
@@ -15,21 +14,14 @@ from jsonschema import Draft202012Validator
 from neo4j import Driver, ManagedTransaction
 
 from app.config import REPO_ROOT, get_driver
+from ingestion.inventory_import import software_id, write_assets
 
 SEED_DIR = REPO_ROOT / "data" / "seed"
 SCHEMA_FILE = REPO_ROOT / "data" / "schemas" / "inventory.schema.json"
 SCHEMA_CYPHER = REPO_ROOT / "database" / "memgraph" / "schema.cypher"
 INVENTORY_FILES = ("inventory-demo.json", "inventory-other.json")
 VULNERABILITY_FILE = "vulnerabilities.json"
-
-
-def software_id(vendor: str, product: str, version: str | None) -> str:
-    """Deterministic ID so the same product/version is one shared Software node."""
-
-    def slug(value: str) -> str:
-        return re.sub(r"[^a-z0-9]+", "_", value.lower()).strip("_")
-
-    return f"SOFTWARE:{slug(vendor)}:{slug(product)}:{slug(version) if version else 'unknown'}"
+SEED_IMPORTED_AT = "2026-11-01T00:00:00.000Z"  # fixed so reseeding is deterministic
 
 
 def content_hash(obj: dict[str, Any]) -> str:
@@ -56,62 +48,7 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 
 def _load_inventory(tx: ManagedTransaction, inv: dict[str, Any]) -> None:
-    tenant_id = inv["tenant_id"]
-    asset_ids = [a["asset_id"] for a in inv["assets"]]
-    clash = tx.run(
-        "MATCH (n:Asset) WHERE n.asset_id IN $ids AND n.tenant_id <> $tenant_id "
-        "RETURN n.asset_id AS asset_id",
-        ids=asset_ids,
-        tenant_id=tenant_id,
-    ).data()
-    if clash:
-        raise ValueError(f"asset ids already belong to another tenant: {clash}")
-
-    tx.run(
-        "MERGE (t:Tenant {tenant_id: $tenant_id}) SET t.name = $name, t.synthetic = true",
-        tenant_id=tenant_id,
-        name=inv["tenant_name"],
-    )
-    assets = [{k: v for k, v in a.items() if k != "software"} for a in inv["assets"]]
-    tx.run(
-        """
-        MATCH (t:Tenant {tenant_id: $tenant_id})
-        UNWIND $assets AS a
-        MERGE (n:Asset {asset_id: a.asset_id})
-        SET n.name = a.name, n.asset_type = a.asset_type, n.environment = a.environment,
-            n.criticality = a.criticality, n.internet_exposed = a.internet_exposed,
-            n.tenant_id = $tenant_id, n.synthetic = true
-        MERGE (t)-[o:OWNS]->(n)
-        SET o.synthetic = true
-        """,
-        tenant_id=tenant_id,
-        assets=assets,
-    )
-    installs = [
-        {
-            "asset_id": a["asset_id"],
-            "software_id": software_id(s["vendor"], s["product"], s.get("version")),
-            "vendor": s["vendor"],
-            "product": s["product"],
-            "version": s.get("version"),
-            "cpe": s.get("cpe"),
-        }
-        for a in inv["assets"]
-        for s in a.get("software", [])
-    ]
-    tx.run(
-        """
-        UNWIND $installs AS i
-        MATCH (a:Asset {asset_id: i.asset_id, tenant_id: $tenant_id})
-        MERGE (s:Software {software_id: i.software_id})
-        SET s.vendor = i.vendor, s.product = i.product, s.version = i.version,
-            s.cpe = coalesce(i.cpe, s.cpe), s.synthetic = true
-        MERGE (a)-[r:RUNS]->(s)
-        SET r.tenant_id = $tenant_id, r.synthetic = true
-        """,
-        tenant_id=tenant_id,
-        installs=installs,
-    )
+    write_assets(tx, inv["tenant_id"], inv["tenant_name"], inv["assets"], SEED_IMPORTED_AT, synthetic=True)
 
 
 def _load_vulnerabilities(tx: ManagedTransaction, data: dict[str, Any]) -> None:

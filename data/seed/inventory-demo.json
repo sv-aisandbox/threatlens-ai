@@ -186,6 +186,70 @@
       "criticality": "low",
       "internet_exposed": false,
       "software": []
+    },
+    {
+      "asset_id": "ASSET-013",
+      "name": "log-collector-01",
+      "asset_type": "server",
+      "environment": "production",
+      "criticality": "high",
+      "internet_exposed": true,
+      "software": [
+        {
+          "vendor": "Apache",
+          "product": "Log4j",
+          "version": "2.14.1",
+          "cpe": "cpe:2.3:a:apache:log4j:2.14.1:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-014",
+      "name": "log-collector-02",
+      "asset_type": "server",
+      "environment": "production",
+      "criticality": "medium",
+      "internet_exposed": false,
+      "software": [
+        {
+          "vendor": "Apache",
+          "product": "Log4j",
+          "version": "2.17.1",
+          "cpe": "cpe:2.3:a:apache:log4j:2.17.1:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-015",
+      "name": "log-collector-03",
+      "asset_type": "server",
+      "environment": "production",
+      "criticality": "medium",
+      "internet_exposed": false,
+      "software": [
+        {
+          "vendor": "Apache",
+          "product": "Log4j",
+          "version": null,
+          "cpe": "cpe:2.3:a:apache:log4j:*:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-016",
+      "name": "legacy-logger-01",
+      "asset_type": "server",
+      "environment": "production",
+      "criticality": "low",
+      "internet_exposed": false,
+      "software": [
+        {
+          "vendor": "Apache",
+          "product": "Log4j",
+          "version": "2.14.1.0",
+          "cpe": null
+        }
+      ]
     }
   ]
 }

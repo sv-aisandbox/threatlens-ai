@@ -15,11 +15,11 @@
 - Spec §20.4: `confirmed` / `possible` / `not_affected` / `unknown`; return `unknown` rather than guessing.
 
 ## Tasks
-- [ ] 4.1 **(Claude)** ADR 0003 — CPE comparison, NVD version-range operators (`versionStartIncluding/Excluding`, `versionEndIncluding/Excluding`), version comparison strategy with documented fallback to `unknown`.
-- [ ] 4.2 **(Claude)** CSV/JSON inventory importer: schema validation, row-level reject report, import only accepted rows, keep original values.
-- [ ] 4.3 **(Claude)** Matching service writing `AFFECTED_BY` with `match_status`, `match_reason`, `matched_by`, `matched_at`; never `confirmed` without product + version match.
-- [ ] 4.4 **(Claude)** Table-driven tests: confirmed, possible, not_affected, unknown, every range-boundary case, vendor-name normalization.
-- [ ] 4.5 **(Claude)** Affected-assets service returns both timestamps: intel `last_success_at` and inventory import time (spec §20.3).
+- [x] 4.1 **(Claude)** ADR 0003 — CPE comparison, NVD version-range operators (`versionStartIncluding/Excluding`, `versionEndIncluding/Excluding`), version comparison strategy with documented fallback to `unknown`.
+- [x] 4.2 **(Claude)** CSV/JSON inventory importer: schema validation, row-level reject report, import only accepted rows, keep original values.
+- [x] 4.3 **(Claude)** Matching service writing `AFFECTED_BY` with `match_status`, `match_reason`, `matched_by`, `matched_at`; never `confirmed` without product + version match.
+- [x] 4.4 **(Claude)** Table-driven tests: confirmed, possible, not_affected, unknown, every range-boundary case, vendor-name normalization.
+- [x] 4.5 **(Claude)** Affected-assets service returns both timestamps: intel `last_success_at` and inventory import time (spec §20.3).
 
 ## Best practices for this module
 - Test-first; pure-logic matching is the highest-credibility risk — default to `unknown`.

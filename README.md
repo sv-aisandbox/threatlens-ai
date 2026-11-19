@@ -63,6 +63,15 @@ uv run python -m ingestion.cli status                   # last sync times and co
 
 Set `NVD_API_KEY` in `.env` for the higher NVD rate limit (free key: https://nvd.nist.gov/developers/request-an-api-key). Without a key the client slows itself to 5 requests per 30 seconds. The first NVD sync without `--since` covers the last 7 days.
 
+Import an asset inventory (CSV or JSON, tenant given by you, not read from the file) and match it to CVEs:
+
+```bash
+uv run python -m ingestion.cli import-inventory --tenant TENANT-DEMO --file my-inventory.csv
+uv run python -m ingestion.cli match    # re-match all software after a new NVD sync
+```
+
+Match statuses are `confirmed`, `possible`, `not_affected` and `unknown` (see ADR 0003). Only `confirmed` counts as exposure; a missing or non-numeric version is reported as `unknown`, never guessed.
+
 Tests use a disposable Memgraph on port 7688 (recorded fixtures, no live network):
 
 ```bash
