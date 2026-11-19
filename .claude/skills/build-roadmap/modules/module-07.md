@@ -16,16 +16,16 @@
 - One tested service function backs REST, MCP and agent — never rewrite the query.
 
 ## Tasks
-- [ ] 6.1 **(Claude)** ADR 0006 — MCP deployment shape (one Python package, two server entrypoints, stdio first).
-- [ ] 6.2 **(Claude)** Official MCP Python SDK, two servers:
+- [x] 6.1 **(Claude)** ADR 0006 — MCP deployment shape (one Python package, two server entrypoints, stdio first).
+- [x] 6.2 **(Claude)** Official MCP Python SDK, two servers:
   - Vulnerability Intelligence: `get_affected_assets`, `get_vulnerability_details`, `search_vulnerabilities`, `get_vulnerability_evidence`.
   - Asset Intelligence: `search_assets`, `get_asset_details`, `get_asset_software`, `get_critical_assets`.
-- [ ] 6.3 **(Claude)** Tools call the same service functions as REST; JSON Schemas match spec §6; tenant from trusted context.
-- [ ] 6.4 **(Claude)** Stable result structure: evidence, source, collection time, match status.
-- [ ] 6.5 **(Claude)** Tool-call audit records (tool, args hash, tenant, latency, outcome).
-- [ ] 6.6 **(Claude)** MCP integration tests with the SDK client: listing, schemas, valid call, malformed args rejected, cross-tenant blocked, error shape.
+- [x] 6.3 **(Claude)** Tools call the same service functions as REST; JSON Schemas match spec §6; tenant from trusted context.
+- [x] 6.4 **(Claude)** Stable result structure: evidence, source, collection time, match status.
+- [x] 6.5 **(Claude)** Tool-call audit records (tool, args hash, tenant, latency, outcome).
+- [x] 6.6 **(Claude)** MCP integration tests with the SDK client: listing, schemas, valid call, malformed args rejected, cross-tenant blocked, error shape.
 - [ ] 6.7 **(you)** Connect the MCP server to Claude Code locally and ask the demo question.
-- [ ] 6.8 **(Claude)** `docs/mcp/` tool catalogue and connection instructions.
+- [x] 6.8 **(Claude)** `docs/mcp/` tool catalogue and connection instructions.
 
 ## Best practices for this module
 - Read-only tools only. Validate arguments server-side. Bounded results.

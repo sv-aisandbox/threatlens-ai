@@ -79,6 +79,12 @@ docker compose --profile test up -d --wait memgraph-test
 cd intelligence-service && uv run pytest
 ```
 
+## MCP tools (Claude Code and other MCP clients)
+
+Two read-only MCP servers expose the intelligence to any MCP client over stdio: `threatlens-vulnerability` (`get_affected_assets`, `get_vulnerability_details`, `search_vulnerabilities`, `get_vulnerability_evidence`) and `threatlens-asset` (`search_assets`, `get_asset_details`, `get_asset_software`, `get_critical_assets`). The tenant is fixed by server configuration (`THREATLENS_TENANT_ID`, default `TENANT-DEMO`) and can never be passed as a tool argument; an attempt is rejected. Every call is audited in `tool_call_audit`.
+
+The repository's [`.mcp.json`](.mcp.json) already defines both servers: open the project in Claude Code, approve them, and ask *"Which of my production assets are affected by CVE-2021-44228, and how sure are we?"* Steps, other clients and troubleshooting: [docs/mcp/connecting.md](docs/mcp/connecting.md). Tool reference: [docs/mcp/tools.md](docs/mcp/tools.md).
+
 ## Backend API (Spring Boot, Keycloak, tenant-aware)
 
 Users call the Spring Boot backend; it validates the Keycloak token, then calls the Python service with a 60-second service JWT (ADR 0004). The tenant comes from the token only.
