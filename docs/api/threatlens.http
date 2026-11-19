@@ -1,0 +1,160 @@
+### ThreatLens AI API - VS Code "REST Client" file (extension: humao.rest-client)
+###
+### Prerequisites (see README "Backend API"):
+###   docker compose --profile auth up -d --wait keycloak      # identity provider, dummy users only
+###   Python service on 127.0.0.1:8000 and Spring Boot backend on 127.0.0.1:8080 running
+###
+### Demo users (all use the password "demo-password"):
+###   alice-admin     ADMIN              TENANT-DEMO
+###   bob-analyst     SECURITY_ANALYST   TENANT-DEMO
+###   carol-viewer    VIEWER             TENANT-DEMO
+###   dave-analyst    SECURITY_ANALYST   TENANT-OTHER   (a second customer, to show tenant isolation)
+###   erin-norole     (no role)          TENANT-DEMO    -> always 403
+###   frank-notenant  SECURITY_ANALYST   (no tenant)    -> always 403
+###
+### The tenant is read from the token. There is deliberately no tenant parameter anywhere.
+
+@keycloak = http://127.0.0.1:8081/realms/threatlens/protocol/openid-connect/token
+@api = http://127.0.0.1:8080
+@cve = CVE-2021-44228
+
+###############################################################################
+# 1. Get tokens (password grant is enabled for the local dev client only)
+###############################################################################
+
+# @name loginBob
+POST {{keycloak}}
+Content-Type: application/x-www-form-urlencoded
+
+client_id=threatlens-dev&grant_type=password&username=bob-analyst&password=demo-password
+
+###
+
+# @name loginAlice
+POST {{keycloak}}
+Content-Type: application/x-www-form-urlencoded
+
+client_id=threatlens-dev&grant_type=password&username=alice-admin&password=demo-password
+
+###
+
+# @name loginCarol
+POST {{keycloak}}
+Content-Type: application/x-www-form-urlencoded
+
+client_id=threatlens-dev&grant_type=password&username=carol-viewer&password=demo-password
+
+###
+
+# @name loginDave
+POST {{keycloak}}
+Content-Type: application/x-www-form-urlencoded
+
+client_id=threatlens-dev&grant_type=password&username=dave-analyst&password=demo-password
+
+###
+
+@bob = {{loginBob.response.body.access_token}}
+@alice = {{loginAlice.response.body.access_token}}
+@carol = {{loginCarol.response.body.access_token}}
+@dave = {{loginDave.response.body.access_token}}
+
+###############################################################################
+# 2. The demo question: which of my assets are affected by Log4Shell?
+#    Expect ASSET-013 confirmed, ASSET-016 possible (identified by name only),
+#    ASSET-015 unknown (no installed version recorded). ASSET-014 (2.17.1) is
+#    not_affected and therefore omitted.
+###############################################################################
+
+GET {{api}}/api/vulnerabilities/{{cve}}/affected-assets
+Authorization: Bearer {{bob}}
+
+###
+
+# Same question, only production assets
+GET {{api}}/api/vulnerabilities/{{cve}}/affected-assets?environment=production
+Authorization: Bearer {{bob}}
+
+###
+
+# CVE details with KEV flags and evidence (global data, no tenant data)
+GET {{api}}/api/vulnerabilities/{{cve}}
+Authorization: Bearer {{carol}}
+
+###
+
+# Data sources and when they last synced
+GET {{api}}/api/sources/status
+Authorization: Bearer {{carol}}
+
+###############################################################################
+# 3. Tenant isolation: dave belongs to a different customer.
+#    He sees ONLY his own asset (ASSET-O05), even when he tries to name another tenant.
+###############################################################################
+
+GET {{api}}/api/vulnerabilities/{{cve}}/affected-assets
+Authorization: Bearer {{dave}}
+
+###
+
+# Spoofing attempts are ignored: tenant comes from the token only
+GET {{api}}/api/vulnerabilities/{{cve}}/affected-assets?tenant_id=TENANT-DEMO&tenant=TENANT-DEMO
+Authorization: Bearer {{dave}}
+X-Tenant-Id: TENANT-DEMO
+
+###############################################################################
+# 4. Roles: only ADMIN may start a sync (runs in the background, answers 202)
+###############################################################################
+
+# 202 Accepted
+POST {{api}}/api/sources/kev/sync
+Authorization: Bearer {{alice}}
+
+###
+
+# 403 Forbidden (analyst)
+POST {{api}}/api/sources/kev/sync
+Authorization: Bearer {{bob}}
+
+###
+
+# 403 Forbidden (viewer)
+POST {{api}}/api/sources/nvd/sync
+Authorization: Bearer {{carol}}
+
+###############################################################################
+# 5. Failure modes (RFC 9457 problem details, each with a correlationId)
+###############################################################################
+
+# 401 - no token
+GET {{api}}/api/vulnerabilities/{{cve}}/affected-assets
+
+###
+
+# 400 - not a CVE id (the value is never echoed back)
+GET {{api}}/api/vulnerabilities/CVE-1
+Authorization: Bearer {{bob}}
+
+###
+
+# 400 - environment must be production, staging or development
+GET {{api}}/api/vulnerabilities/{{cve}}/affected-assets?environment=moon
+Authorization: Bearer {{bob}}
+
+###
+
+# 404 - CVE not present in the graph
+GET {{api}}/api/vulnerabilities/CVE-2099-0001
+Authorization: Bearer {{bob}}
+
+###
+
+# Supply your own correlation id; it is echoed, logged by both services and stored in audit_log
+GET {{api}}/api/vulnerabilities/{{cve}}/affected-assets
+Authorization: Bearer {{bob}}
+X-Correlation-Id: demo-trace-0001
+
+###
+
+# Health (public, no details)
+GET {{api}}/actuator/health

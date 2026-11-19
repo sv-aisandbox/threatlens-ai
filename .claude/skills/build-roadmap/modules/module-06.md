@@ -20,15 +20,15 @@
 - **G9** Stay on latest Spring Boot **3.x** unless decided otherwise (record in an ADR).
 
 ## Tasks
-- [ ] 5.1 **(Claude)** ADRs 0004 (Spring ↔ Python contract) and 0005 (auth provider).
-- [ ] 5.2 **(Claude)** Keycloak in Compose; realm with roles `ADMIN`, `SECURITY_ANALYST`, `VIEWER`; demo users in two tenants.
-- [ ] 5.3 **(Claude)** Spring Boot 3 (Java 21, Maven wrapper) OAuth2 resource server; tenant and role from token claims only.
-- [ ] 5.4 **(Claude)** Endpoints: `GET /api/vulnerabilities/{cveId}`, `GET /api/vulnerabilities/{cveId}/affected-assets?environment=`, `GET /api/sources/status`, `POST /api/sources/{id}/sync` (admin).
-- [ ] 5.5 **(Claude)** Spring → Python client with short-lived service JWT; FastAPI rejects calls without it.
-- [ ] 5.6 **(Claude)** Audit table + filter: user, tenant, action, outcome, correlation ID, time; correlation ID propagated to Python.
-- [ ] 5.7 **(Claude)** Validation (CVE regex, environment enum), rate limits, timeouts, RFC 9457 problem details.
-- [ ] 5.8 **(Claude)** JUnit 5 + Testcontainers + REST Assured: 401 no token, 403 wrong role, **tenant A cannot read tenant B**, invalid CVE → 400.
-- [ ] 5.9 **(Claude)** Export OpenAPI to `docs/api/` with a REST Client file.
+- [x] 5.1 **(Claude)** ADRs 0004 (Spring ↔ Python contract) and 0005 (auth provider).
+- [x] 5.2 **(Claude)** Keycloak in Compose; realm with roles `ADMIN`, `SECURITY_ANALYST`, `VIEWER`; demo users in two tenants.
+- [x] 5.3 **(Claude)** Spring Boot 3 (Java 21, Maven wrapper) OAuth2 resource server; tenant and role from token claims only.
+- [x] 5.4 **(Claude)** Endpoints: `GET /api/vulnerabilities/{cveId}`, `GET /api/vulnerabilities/{cveId}/affected-assets?environment=`, `GET /api/sources/status`, `POST /api/sources/{id}/sync` (admin).
+- [x] 5.5 **(Claude)** Spring → Python client with short-lived service JWT; FastAPI rejects calls without it.
+- [x] 5.6 **(Claude)** Audit table + filter: user, tenant, action, outcome, correlation ID, time; correlation ID propagated to Python.
+- [x] 5.7 **(Claude)** Validation (CVE regex, environment enum), rate limits, timeouts, RFC 9457 problem details.
+- [x] 5.8 **(Claude)** JUnit 5 + Testcontainers + REST Assured: 401 no token, 403 wrong role, **tenant A cannot read tenant B**, invalid CVE → 400.
+- [x] 5.9 **(Claude)** Export OpenAPI to `docs/api/` with a REST Client file.
 
 ## Best practices for this module
 - Authorization enforced server-side in the service layer, not only controllers.

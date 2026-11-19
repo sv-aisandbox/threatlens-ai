@@ -1,0 +1,22 @@
+spring:
+  flyway:
+    enabled: true
+    locations: filesystem:../database/migrations
+
+springdoc:
+  api-docs:
+    enabled: true
+
+threatlens:
+  security:
+    issuer: https://issuer.test.invalid/realms/threatlens
+    jwk-set-uri: https://issuer.test.invalid/jwks # not contacted: tests supply their own decoder
+    audience: threatlens-api
+  intelligence:
+    base-url: http://127.0.0.1:1 # replaced by the stub server at runtime
+    jwt-secret: test-only-secret-0123456789abcdef0123456789abcdef
+    connect-timeout: 1s
+    read-timeout: 2s
+  rate-limit:
+    requests-per-minute: 10000
+    sync-per-minute: 10000

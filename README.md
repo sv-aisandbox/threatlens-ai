@@ -79,10 +79,34 @@ docker compose --profile test up -d --wait memgraph-test
 cd intelligence-service && uv run pytest
 ```
 
-Internal sync API (localhost only, needs `INTERNAL_API_TOKEN` in `.env`, sent as the `X-Internal-Token` header):
+## Backend API (Spring Boot, Keycloak, tenant-aware)
+
+Users call the Spring Boot backend; it validates the Keycloak token, then calls the Python service with a 60-second service JWT (ADR 0004). The tenant comes from the token only.
 
 ```bash
+# 1. Infrastructure and the identity provider (dummy users only)
+docker compose up -d --wait
+docker compose --profile migrate run --rm flyway
+docker compose --profile auth up -d --wait keycloak
+
+# 2. Python service (internal, 127.0.0.1:8000). Needs INTERNAL_JWT_SECRET in .env (at least 32 bytes).
+cd intelligence-service
 uv run uvicorn app.api:create_app --factory --host 127.0.0.1 --port 8000
+
+# 3. Spring Boot backend (127.0.0.1:8080), in another terminal. JDK 21 required.
+#    Spring does not read .env, so export it first (Git Bash):
+set -a; . ./.env; set +a
+cd backend && ./mvnw spring-boot:run
 ```
 
-Services listen on `127.0.0.1` only: Memgraph `7687`, PostgreSQL `5432`, Lab `3000`.
+Then open [docs/api/threatlens.http](docs/api/threatlens.http) with the VS Code REST Client extension. It logs in as the demo users and walks through the demo question, tenant isolation, role checks and the error cases. The API contract is in [docs/api/openapi.json](docs/api/openapi.json) (regenerate with `cd backend && ./mvnw test -Dopenapi.update=true`).
+
+Demo users (password `demo-password`, local Keycloak only): `alice-admin` (ADMIN), `bob-analyst` (SECURITY_ANALYST), `carol-viewer` (VIEWER) in `TENANT-DEMO`; `dave-analyst` in `TENANT-OTHER`; `erin-norole` and `frank-notenant` exist to show 403 responses.
+
+Backend tests (JUnit 5, Testcontainers PostgreSQL, REST Assured; Docker must be running):
+
+```bash
+cd backend && ./mvnw test
+```
+
+Services listen on `127.0.0.1` only: Memgraph `7687`, PostgreSQL `5432`, Lab `3000`, Keycloak `8081`, Python service `8000`, backend `8080`.

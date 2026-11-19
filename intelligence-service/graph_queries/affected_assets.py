@@ -16,10 +16,12 @@ MATCH_STATUSES = frozenset({"confirmed", "possible", "not_affected", "unknown"})
 DEFAULT_STATUSES = ("confirmed", "possible", "unknown")
 MAX_LIMIT = 500
 MAX_EVIDENCE_PER_ROW = 5
+ENVIRONMENTS = frozenset({"production", "staging", "development"})
 
 _QUERY = """
 MATCH (a:Asset {tenant_id: $tenant_id})-[r:RUNS]->(s:Software)-[m:AFFECTED_BY]->(v:Vulnerability {cve_id: $cve_id})
 WHERE r.tenant_id = $tenant_id AND m.match_status IN $statuses
+  AND ($environment IS NULL OR a.environment = $environment)
 WITH a, s, m, v
 ORDER BY a.asset_id, s.software_id
 LIMIT $limit
@@ -58,6 +60,7 @@ def get_affected_assets(
     cve_id: str,
     statuses: Iterable[str] = DEFAULT_STATUSES,
     limit: int = 100,
+    environment: str | None = None,
 ) -> list[dict[str, Any]]:
     if not isinstance(tenant_id, str) or not tenant_id:
         raise ValueError("tenant_id is required")
@@ -68,10 +71,13 @@ def get_affected_assets(
         raise ValueError(f"statuses must be a non-empty subset of {sorted(MATCH_STATUSES)}")
     if not isinstance(limit, int) or isinstance(limit, bool) or not 1 <= limit <= MAX_LIMIT:
         raise ValueError(f"limit must be an integer between 1 and {MAX_LIMIT}")
+    if environment is not None and environment not in ENVIRONMENTS:
+        raise ValueError(f"environment must be one of {sorted(ENVIRONMENTS)}")
 
     with driver.session() as session:
         result = session.run(
-            _QUERY, tenant_id=tenant_id, cve_id=cve_id, statuses=status_list, limit=limit
+            _QUERY, tenant_id=tenant_id, cve_id=cve_id, statuses=status_list, limit=limit,
+            environment=environment,
         )
         rows = [record.data() for record in result]
     for row in rows:
@@ -91,6 +97,7 @@ def get_affected_assets_with_freshness(
     cve_id: str,
     statuses: Iterable[str] = DEFAULT_STATUSES,
     limit: int = 100,
+    environment: str | None = None,
     now: datetime | None = None,
     stale_after: timedelta = STALE_AFTER,
 ) -> dict[str, Any]:
@@ -101,7 +108,7 @@ def get_affected_assets_with_freshness(
     from ingestion import source_sync
     from ingestion.inventory_import import latest_import_time
 
-    results = get_affected_assets(driver, tenant_id, cve_id, statuses, limit)
+    results = get_affected_assets(driver, tenant_id, cve_id, statuses, limit, environment)
     sources = {r["source_id"]: r for r in source_sync.list_status(conn)}
     now = now or datetime.now(UTC)
     intel = {

@@ -3,7 +3,7 @@ import uuid
 import psycopg
 import pytest
 
-from app.config import get_driver, get_test_driver, pg_conninfo
+from app.config import get_test_driver, pg_conninfo
 from ingestion import seed_loader
 
 MIGRATIONS = sorted(
@@ -12,27 +12,14 @@ MIGRATIONS = sorted(
 )
 
 
-# --- development Memgraph: only used by the synthetic-seed tests (they touch synthetic=true nodes only) ---
-
-
-@pytest.fixture(scope="session")
-def driver():
-    drv = get_driver()
-    try:
-        drv.verify_connectivity()
-    except Exception as exc:  # pragma: no cover - environment problem
-        pytest.fail(f"Memgraph not reachable; run `docker compose up -d --wait` ({exc})")
-    yield drv
-    drv.close()
+# --- seeded graph: always the disposable test Memgraph, never the development one ---
 
 
 @pytest.fixture()
-def seeded(driver):
-    """Fresh synthetic seed for every test (only touches nodes with synthetic=true)."""
-    seed_loader.apply_schema(driver)
-    seed_loader.reset_seed(driver)
-    seed_loader.load_seed(driver)
-    return driver
+def seeded(graph):
+    """Fresh synthetic seed for every test, in the empty test graph."""
+    seed_loader.load_seed(graph)
+    return graph
 
 
 # --- ingestion tests: disposable Memgraph (port 7688) and an isolated Postgres schema ---

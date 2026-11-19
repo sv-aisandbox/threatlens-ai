@@ -1,0 +1,47 @@
+server:
+  address: ${SERVER_ADDRESS:127.0.0.1}
+  port: ${SERVER_PORT:8080}
+  error:
+    whitelabel:
+      enabled: false
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+
+spring:
+  application:
+    name: threatlens-backend
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:127.0.0.1}:${POSTGRES_PORT:5432}/${POSTGRES_DB:threatlens}
+    username: ${POSTGRES_USER:threatlens}
+    password: ${POSTGRES_PASSWORD:}
+  flyway:
+    # Migrations are applied by the Flyway container (docker compose --profile migrate run --rm flyway), ADR 0010.
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+springdoc:
+  api-docs:
+    enabled: false # only enabled in tests to export docs/api/openapi.json
+
+threatlens:
+  security:
+    issuer: ${KEYCLOAK_ISSUER:http://127.0.0.1:8081/realms/threatlens}
+    jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://127.0.0.1:8081/realms/threatlens/protocol/openid-connect/certs}
+    audience: threatlens-api
+  intelligence:
+    base-url: ${INTELLIGENCE_BASE_URL:http://127.0.0.1:8000}
+    jwt-secret: ${INTERNAL_JWT_SECRET}
+    connect-timeout: 2s
+    read-timeout: 15s
+  rate-limit:
+    requests-per-minute: 120
+    sync-per-minute: 5

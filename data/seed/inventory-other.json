@@ -65,6 +65,22 @@
           "cpe": "cpe:2.3:a:example_vendor:example_web_ui:2.0.0:*:*:*:*:*:*:*"
         }
       ]
+    },
+    {
+      "asset_id": "ASSET-O05",
+      "name": "other-log-01",
+      "asset_type": "server",
+      "environment": "production",
+      "criticality": "critical",
+      "internet_exposed": true,
+      "software": [
+        {
+          "vendor": "Apache",
+          "product": "Log4j",
+          "version": "2.14.1",
+          "cpe": "cpe:2.3:a:apache:log4j:2.14.1:*:*:*:*:*:*:*"
+        }
+      ]
     }
   ]
 }

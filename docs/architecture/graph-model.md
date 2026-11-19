@@ -40,7 +40,7 @@ Facts (`RUNS` from an inventory, `Evidence`) are kept separate from inferences (
 | File | Content |
 |---|---|
 | `inventory-demo.json` | `TENANT-DEMO`, 16 assets (12 fictional-vendor plus 4 Apache Log4j assets for matching against the real CVE-2021-44228), validated by `data/schemas/inventory.schema.json` |
-| `inventory-other.json` | `TENANT-OTHER`, 4 assets, used for isolation tests |
+| `inventory-other.json` | `TENANT-OTHER`, 5 assets (one runs Apache Log4j 2.14.1), used for isolation tests |
 | `vulnerabilities.json` | 3 fictional CVEs, evidence and matches |
 
 Cases covered: confirmed match (Example Server 1.2.2 / 1.2.3), negative case (fixed 1.3.0, `not_affected`), unknown case (Example Proxy with no version), unaffected software, and an asset with no software.

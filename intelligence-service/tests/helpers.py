@@ -39,3 +39,32 @@ def nvd_transport(pages_by_start: dict[int, dict], calls: list[httpx.Request] | 
         return httpx.Response(200, json=page)
 
     return httpx.MockTransport(handler)
+
+
+# ---- service JWT minting (mirrors what the Spring Boot backend does, ADR 0004) -----------------
+
+SECRET = "unit-test-secret-" + "x" * 32
+
+
+def mint(secret: str = SECRET, *, sub: str = "user-1", tenant: str | None = "TENANT-DEMO",
+         roles: list[str] | None = None, ttl: int = 60, iat_offset: int = 0, algorithm: str = "HS256",
+         iss: str = "threatlens-backend", aud: str = "threatlens-intelligence", drop: tuple[str, ...] = (),
+         **extra) -> str:
+    import time
+    import uuid
+
+    import jwt
+
+    now = int(time.time()) + iat_offset
+    claims = {"iss": iss, "aud": aud, "sub": sub, "tenant_id": tenant,
+              "roles": ["SECURITY_ANALYST"] if roles is None else roles,
+              "jti": str(uuid.uuid4()), "iat": now, "exp": now + ttl, **extra}
+    for name in drop:
+        claims.pop(name, None)
+    if tenant is None:
+        claims.pop("tenant_id")
+    return jwt.encode(claims, secret, algorithm=algorithm)
+
+
+def bearer(token: str, **headers) -> dict[str, str]:
+    return {"Authorization": f"Bearer {token}", **headers}

@@ -1,0 +1,253 @@
+{
+  "realm": "threatlens",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "bruteForceProtected": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "ADMIN",
+        "description": "Manage data sources and trigger syncs"
+      },
+      {
+        "name": "SECURITY_ANALYST",
+        "description": "Investigate vulnerabilities and affected assets"
+      },
+      {
+        "name": "VIEWER",
+        "description": "Read-only access"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "threatlens-dev",
+      "name": "ThreatLens dev (password grant, local only)",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "protocolMappers": [
+        {
+          "name": "tenant_id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "tenant_id",
+            "claim.name": "tenant_id",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "userinfo.token.claim": "false"
+          }
+        },
+        {
+          "name": "threatlens-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "threatlens-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "threatlens-web",
+      "name": "ThreatLens web UI",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": [
+        "http://127.0.0.1:3000/*",
+        "http://localhost:3000/*"
+      ],
+      "webOrigins": [
+        "http://127.0.0.1:3000",
+        "http://localhost:3000"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "tenant_id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "tenant_id",
+            "claim.name": "tenant_id",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "userinfo.token.claim": "false"
+          }
+        },
+        {
+          "name": "threatlens-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "threatlens-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "alice-admin",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "alice-admin@example.invalid",
+      "firstName": "Alice",
+      "lastName": "Admin",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "demo-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ADMIN"
+      ],
+      "attributes": {
+        "tenant_id": [
+          "TENANT-DEMO"
+        ]
+      }
+    },
+    {
+      "username": "bob-analyst",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "bob-analyst@example.invalid",
+      "firstName": "Bob",
+      "lastName": "Analyst",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "demo-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "SECURITY_ANALYST"
+      ],
+      "attributes": {
+        "tenant_id": [
+          "TENANT-DEMO"
+        ]
+      }
+    },
+    {
+      "username": "carol-viewer",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "carol-viewer@example.invalid",
+      "firstName": "Carol",
+      "lastName": "Viewer",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "demo-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "VIEWER"
+      ],
+      "attributes": {
+        "tenant_id": [
+          "TENANT-DEMO"
+        ]
+      }
+    },
+    {
+      "username": "dave-analyst",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "dave-analyst@example.invalid",
+      "firstName": "Dave",
+      "lastName": "Analyst",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "demo-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "SECURITY_ANALYST"
+      ],
+      "attributes": {
+        "tenant_id": [
+          "TENANT-OTHER"
+        ]
+      }
+    },
+    {
+      "username": "erin-norole",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "erin-norole@example.invalid",
+      "firstName": "Erin",
+      "lastName": "NoRole",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "demo-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [],
+      "attributes": {
+        "tenant_id": [
+          "TENANT-DEMO"
+        ]
+      }
+    },
+    {
+      "username": "frank-notenant",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "frank-notenant@example.invalid",
+      "firstName": "Frank",
+      "lastName": "NoTenant",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "demo-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "SECURITY_ANALYST"
+      ]
+    }
+  ],
+  "components": {
+    "org.keycloak.userprofile.UserProfileProvider": [
+      {
+        "providerId": "declarative-user-profile",
+        "config": {
+          "kc.user.profile.config": [
+            "{\"attributes\": [{\"name\": \"username\", \"displayName\": \"${username}\", \"validations\": {\"length\": {\"min\": 3, \"max\": 255}}, \"permissions\": {\"view\": [\"admin\", \"user\"], \"edit\": [\"admin\", \"user\"]}}, {\"name\": \"email\", \"displayName\": \"${email}\", \"validations\": {\"email\": {}, \"length\": {\"max\": 255}}, \"required\": {\"roles\": [\"user\"]}, \"permissions\": {\"view\": [\"admin\", \"user\"], \"edit\": [\"admin\", \"user\"]}}, {\"name\": \"firstName\", \"displayName\": \"${firstName}\", \"validations\": {\"length\": {\"max\": 255}}, \"required\": {\"roles\": [\"user\"]}, \"permissions\": {\"view\": [\"admin\", \"user\"], \"edit\": [\"admin\", \"user\"]}}, {\"name\": \"lastName\", \"displayName\": \"${lastName}\", \"validations\": {\"length\": {\"max\": 255}}, \"required\": {\"roles\": [\"user\"]}, \"permissions\": {\"view\": [\"admin\", \"user\"], \"edit\": [\"admin\", \"user\"]}}, {\"name\": \"tenant_id\", \"displayName\": \"Tenant\", \"validations\": {\"pattern\": {\"pattern\": \"^TENANT-[A-Z0-9-]{1,40}$\", \"error-message\": \"invalid tenant id\"}}, \"permissions\": {\"view\": [\"admin\"], \"edit\": [\"admin\"]}}]}"
+          ]
+        }
+      }
+    ]
+  }
+}
