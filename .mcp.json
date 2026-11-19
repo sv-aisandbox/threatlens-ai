@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "threatlens-vulnerability": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["--directory", "intelligence-service", "run", "python", "-m", "mcp_tools.vulnerability_server"],
+      "env": {
+        "THREATLENS_TENANT_ID": "${THREATLENS_TENANT_ID:-TENANT-DEMO}",
+        "THREATLENS_ROLES": "${THREATLENS_ROLES:-VIEWER}"
+      }
+    },
+    "threatlens-asset": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["--directory", "intelligence-service", "run", "python", "-m", "mcp_tools.asset_server"],
+      "env": {
+        "THREATLENS_TENANT_ID": "${THREATLENS_TENANT_ID:-TENANT-DEMO}",
+        "THREATLENS_ROLES": "${THREATLENS_ROLES:-VIEWER}"
+      }
+    }
+  }
+}
