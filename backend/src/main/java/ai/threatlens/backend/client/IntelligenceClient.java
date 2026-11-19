@@ -5,12 +5,20 @@ import ai.threatlens.backend.client.UpstreamExceptions.NotFoundException;
 import ai.threatlens.backend.client.UpstreamExceptions.UpstreamException;
 import ai.threatlens.backend.config.AppProperties;
 import ai.threatlens.backend.model.AffectedAssetsResponse;
+import ai.threatlens.backend.client.UpstreamExceptions.InventoryRejectedException;
 import ai.threatlens.backend.model.AnalystAnswer;
+import ai.threatlens.backend.model.InventoryImportDetail;
+import ai.threatlens.backend.model.InventoryImportResult;
+import ai.threatlens.backend.model.InventoryImportSummary;
+import ai.threatlens.backend.model.OverviewResponse;
+import ai.threatlens.backend.model.VulnerabilityGraph;
+import ai.threatlens.backend.model.VulnerabilitySearchResponse;
 import ai.threatlens.backend.model.SourceStatus;
 import ai.threatlens.backend.model.SyncAccepted;
 import ai.threatlens.backend.model.VulnerabilityDetails;
 import ai.threatlens.backend.security.CorrelationIdFilter;
 import ai.threatlens.backend.security.CurrentUser;
+import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpTimeoutException;
 import java.util.List;
@@ -23,11 +31,13 @@ import org.slf4j.MDC;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Calls the Python intelligence service with a fresh service JWT per request. Tenant and roles are taken from
@@ -38,6 +48,9 @@ import org.springframework.web.client.RestClientException;
 public class IntelligenceClient {
 
     private static final Logger log = LoggerFactory.getLogger(IntelligenceClient.class);
+
+    private static final JsonMapper JSON = JsonMapper.builder().build();
+    private static final int MAX_ERROR_BODY = 8192;
 
     private final RestClient rest;
     private final RestClient analystRest;
@@ -101,6 +114,67 @@ public class IntelligenceClient {
                 .body(SyncAccepted.class));
     }
 
+    public OverviewResponse overview(CurrentUser user) {
+        return call(() -> rest.get().uri("/internal/v1/overview").headers(h -> authenticate(h, user)).retrieve()
+                .onStatus(s -> s.isError(), (req, res) -> {
+                    throw map(res.getStatusCode().value());
+                })
+                .body(OverviewResponse.class));
+    }
+
+    public VulnerabilitySearchResponse searchVulnerabilities(CurrentUser user, String query, boolean kevOnly, Double minCvss, int limit) {
+        return call(() -> rest.get()
+                .uri(b -> b.path("/internal/v1/vulnerabilities")
+                        .queryParamIfPresent("query", Optional.ofNullable(query))
+                        .queryParam("kev_only", kevOnly)
+                        .queryParamIfPresent("min_cvss", Optional.ofNullable(minCvss))
+                        .queryParam("limit", limit)
+                        .build())
+                .headers(h -> authenticate(h, user)).retrieve()
+                .onStatus(s -> s.isError(), (req, res) -> {
+                    throw map(res.getStatusCode().value());
+                })
+                .body(VulnerabilitySearchResponse.class));
+    }
+
+    public VulnerabilityGraph vulnerabilityGraph(CurrentUser user, String cveId, boolean includeNotAffected) {
+        return call(() -> rest.get()
+                .uri(b -> b.path("/internal/v1/vulnerabilities/{cve}/graph").queryParam("include_not_affected", includeNotAffected).build(cveId))
+                .headers(h -> authenticate(h, user)).retrieve()
+                .onStatus(s -> s.isError(), (req, res) -> {
+                    throw map(res.getStatusCode().value());
+                })
+                .body(VulnerabilityGraph.class));
+    }
+
+    /** Upload an inventory. Uses the long timeout: import and matching can take a few seconds. */
+    public InventoryImportResult importInventory(CurrentUser user, String filename, String format, String contentBase64) {
+        return call(() -> analystRest.post().uri("/internal/v1/inventory/import").headers(h -> authenticate(h, user))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of("filename", filename, "format", format, "content_base64", contentBase64))
+                .retrieve()
+                .onStatus(s -> s.isError(), (req, res) -> {
+                    throw mapImport(res);
+                })
+                .body(InventoryImportResult.class));
+    }
+
+    public List<InventoryImportSummary> listImports(CurrentUser user) {
+        return call(() -> rest.get().uri("/internal/v1/inventory/imports").headers(h -> authenticate(h, user)).retrieve()
+                .onStatus(s -> s.isError(), (req, res) -> {
+                    throw map(res.getStatusCode().value());
+                })
+                .body(new ParameterizedTypeReference<List<InventoryImportSummary>>() {}));
+    }
+
+    public InventoryImportDetail importDetail(CurrentUser user, String importId) {
+        return call(() -> rest.get().uri("/internal/v1/inventory/imports/{id}", importId).headers(h -> authenticate(h, user)).retrieve()
+                .onStatus(s -> s.isError(), (req, res) -> {
+                    throw map(res.getStatusCode().value());
+                })
+                .body(InventoryImportDetail.class));
+    }
+
     /** Ask the analyst. Only the question is sent: tenant and roles travel in the signed service token. */
     public AnalystAnswer ask(CurrentUser user, String question) {
         return call(() -> analystRest.post()
@@ -134,6 +208,29 @@ public class IntelligenceClient {
         // 401/403 here mean a configuration problem (secret mismatch), not a user problem.
         log.error("intelligence service answered HTTP {}", status);
         return new UpstreamException(502, "intelligence service error");
+    }
+
+    /**
+     * A 422 from the import endpoint is the one place Python tells us why a file was unusable. Only the stable code and
+     * a short list of strings are read (and the caller allowlists them); no free text is forwarded.
+     */
+    private static RuntimeException mapImport(ClientHttpResponse res) throws IOException {
+        int status = res.getStatusCode().value();
+        if (status != 422) {
+            return map(status);
+        }
+        try {
+            Map<?, ?> body = JSON.readValue(res.getBody().readNBytes(MAX_ERROR_BODY), Map.class);
+            if (body.get("detail") instanceof Map<?, ?> detail && detail.get("code") instanceof String code) {
+                List<String> names = detail.get("details") instanceof List<?> raw
+                        ? raw.stream().filter(String.class::isInstance).map(String.class::cast).limit(10).toList()
+                        : List.of();
+                return new InventoryRejectedException(code, names);
+            }
+        } catch (RuntimeException ignored) {
+            // fall through to a generic upstream error
+        }
+        return new UpstreamException(502, "unexpected response from intelligence service");
     }
 
     private static RuntimeException mapAnalyst(int status) {

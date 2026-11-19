@@ -1,6 +1,7 @@
 package ai.threatlens.backend.web;
 
 import ai.threatlens.backend.client.UpstreamExceptions.ConflictException;
+import ai.threatlens.backend.client.UpstreamExceptions.InventoryRejectedException;
 import ai.threatlens.backend.client.UpstreamExceptions.NotFoundException;
 import ai.threatlens.backend.client.UpstreamExceptions.UpstreamException;
 import ai.threatlens.backend.security.CorrelationIdFilter;
@@ -38,6 +39,36 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     ResponseEntity<Object> badRequest(IllegalArgumentException e) {
         return problem(HttpStatus.BAD_REQUEST, "Bad Request", "The request is invalid.");
+    }
+
+    /** Wording lives here, not in Python: an upstream string can never become a message shown to a user. */
+    private static final java.util.Map<String, String> INVENTORY_MESSAGES = java.util.Map.of(
+            "not_json", "The file is not valid JSON.",
+            "bad_shape", "The JSON file must be an object with an 'assets' list.",
+            "tenant_mismatch", "The file names a different organization than yours.",
+            "too_large", "The file is too large (limit 5 MB).",
+            "not_utf8", "The file is not valid UTF-8 text.",
+            "too_many_rows", "The file has too many rows (limit 20,000).",
+            "bad_encoding", "The file could not be read.",
+            "bad_format", "The file could not be read.");
+    private static final java.util.Set<String> INVENTORY_COLUMNS =
+            java.util.Set.of("asset_id", "name", "asset_type", "environment", "criticality", "internet_exposed");
+
+    @ExceptionHandler(InventoryRejectedException.class)
+    ResponseEntity<Object> inventoryRejected(InventoryRejectedException e) {
+        String message;
+        if ("missing_columns".equals(e.code())) {
+            String names = e.details().stream().filter(INVENTORY_COLUMNS::contains).collect(java.util.stream.Collectors.joining(", "));
+            message = "The CSV is missing required columns" + (names.isEmpty() ? "." : ": " + names + ".");
+        } else {
+            message = INVENTORY_MESSAGES.getOrDefault(e.code(), "The file could not be imported.");
+        }
+        String code = INVENTORY_MESSAGES.containsKey(e.code()) || "missing_columns".equals(e.code()) ? e.code() : "unknown";
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(422), message);
+        pd.setTitle("Inventory file rejected");
+        pd.setProperty("code", code);
+        pd.setProperty("correlationId", MDC.get(CorrelationIdFilter.MDC_KEY));
+        return ResponseEntity.status(422).contentType(org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON).body(pd);
     }
 
     @ExceptionHandler(NotFoundException.class)

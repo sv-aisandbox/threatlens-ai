@@ -9,6 +9,7 @@ import csv
 import io
 import json
 import re
+import uuid
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -34,7 +35,18 @@ Criticality = Literal["critical", "high", "medium", "low"]
 
 
 class InventoryFileError(ValueError):
-    """The whole file is unusable (wrong shape, too large, tenant mismatch)."""
+    """The whole file is unusable (wrong shape, too large, tenant mismatch).
+
+    `code` is stable and drawn from a fixed set so callers can show their own message; `details` only ever holds
+    names from our own fixed vocabulary (for example the required column names), never file content.
+    """
+
+    CODES = ("not_json", "bad_shape", "tenant_mismatch", "too_large", "not_utf8", "missing_columns", "too_many_rows", "bad_format")
+
+    def __init__(self, code: str, message: str, details: list[str] | None = None) -> None:
+        super().__init__(message)
+        self.code = code
+        self.details = details or []
 
 
 class InventoryRow(BaseModel):
@@ -114,12 +126,12 @@ def _json_rows(text: str, tenant_id: str) -> tuple[list[tuple[str, Any]], str | 
     try:
         doc = json.loads(text)
     except ValueError:
-        raise InventoryFileError("file is not valid JSON") from None
+        raise InventoryFileError("not_json", "file is not valid JSON") from None
     if not isinstance(doc, dict) or not isinstance(doc.get("assets"), list):
-        raise InventoryFileError("JSON must be an object with an 'assets' list")
+        raise InventoryFileError("bad_shape", "JSON must be an object with an 'assets' list")
     declared = doc.get("tenant_id")
     if declared is not None and declared != tenant_id:
-        raise InventoryFileError("tenant_id in file does not match the import tenant")
+        raise InventoryFileError("tenant_mismatch", "tenant_id in file does not match the import tenant")
     name = doc.get("tenant_name")
     rows: list[tuple[str, Any]] = []
     for i, asset in enumerate(doc["assets"]):
@@ -144,7 +156,7 @@ def _csv_rows(text: str) -> list[tuple[str, Any]]:
     headers = [h.strip() for h in (reader.fieldnames or [])]
     missing = [c for c in CSV_REQUIRED if c not in headers]
     if missing:
-        raise InventoryFileError(f"CSV is missing required columns: {', '.join(missing)}")
+        raise InventoryFileError("missing_columns", f"CSV is missing required columns: {', '.join(missing)}", missing)
     reader.fieldnames = headers
     rows = []
     for line_no, rec in enumerate(reader, start=2):
@@ -265,11 +277,11 @@ def import_inventory(
         raise ValueError("invalid tenant_id")
     raw_bytes = data.encode() if isinstance(data, str) else data
     if len(raw_bytes) > MAX_BYTES:
-        raise InventoryFileError("file is too large")
+        raise InventoryFileError("too_large", "file is too large")
     try:
         text = raw_bytes.decode("utf-8-sig")
     except UnicodeDecodeError:
-        raise InventoryFileError("file is not valid UTF-8") from None
+        raise InventoryFileError("not_utf8", "file is not valid UTF-8") from None
 
     declared_name = None
     if fmt == "json":
@@ -277,9 +289,9 @@ def import_inventory(
     elif fmt == "csv":
         rows = _csv_rows(text)
     else:
-        raise ValueError("fmt must be 'json' or 'csv'")
+        raise InventoryFileError("bad_format", "fmt must be 'json' or 'csv'")
     if len(rows) > MAX_ROWS:
-        raise InventoryFileError(f"too many rows (limit {MAX_ROWS})")
+        raise InventoryFileError("too_many_rows", f"too many rows (limit {MAX_ROWS})")
 
     imported_at = now or datetime.now(UTC)
     report = ImportReport(tenant_id=tenant_id, source_format=fmt, imported_at=imported_at, rows_received=len(rows))
@@ -381,3 +393,49 @@ def latest_import_time(conn: psycopg.Connection, tenant_id: str) -> datetime | N
         )
         row = cur.fetchone()
     return row[0] if row else None
+
+
+def list_imports(conn: psycopg.Connection, tenant_id: str, limit: int = 10) -> list[dict[str, Any]]:
+    """Recent import attempts for one tenant, newest first. Counters only; use get_import for the reject report."""
+    if not isinstance(limit, int) or isinstance(limit, bool) or not 1 <= limit <= 50:
+        raise ValueError("limit must be between 1 and 50")
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT import_id, source_name, source_format, imported_at, rows_received, rows_accepted, rows_rejected,
+                   assets_imported, software_imported
+            FROM inventory_import WHERE tenant_id = %s ORDER BY imported_at DESC LIMIT %s
+            """,
+            (tenant_id, limit),
+        )
+        cols = ("import_id", "source_name", "source_format", "imported_at", "rows_received", "rows_accepted", "rows_rejected",
+                "assets_imported", "software_imported")
+        return [
+            {**dict(zip(cols, row, strict=True)), "import_id": str(row[0]), "imported_at": row[3].isoformat()}
+            for row in cur.fetchall()
+        ]
+
+
+def get_import(conn: psycopg.Connection, tenant_id: str, import_id: str) -> dict[str, Any] | None:
+    """One import including its reject report. An import of another tenant is indistinguishable from a missing one."""
+    try:
+        wanted = str(uuid.UUID(import_id))
+    except (ValueError, AttributeError, TypeError):
+        raise ValueError("import_id is not a valid identifier") from None
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT import_id, source_name, source_format, imported_at, rows_received, rows_accepted, rows_rejected,
+                   assets_imported, software_imported, reject_report
+            FROM inventory_import WHERE tenant_id = %s AND import_id = %s
+            """,
+            (tenant_id, wanted),
+        )
+        row = cur.fetchone()
+    if row is None:
+        return None
+    cols = ("import_id", "source_name", "source_format", "imported_at", "rows_received", "rows_accepted", "rows_rejected",
+            "assets_imported", "software_imported", "rejects")
+    out = dict(zip(cols, row, strict=True))
+    out["import_id"], out["imported_at"] = str(row[0]), row[3].isoformat()
+    return out

@@ -14,4 +14,5 @@ public record AnalystTraceStep(
         @JsonProperty("outcome") String outcome,
         @JsonProperty("latency_ms") Integer latencyMs,
         @JsonProperty("injection_suspected") Boolean injectionSuspected,
-        @JsonProperty("tool_correlation_id") String toolCorrelationId) {}
+        @JsonProperty("tool_correlation_id") String toolCorrelationId,
+        @JsonProperty("result_summary") String resultSummary) {}

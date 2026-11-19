@@ -265,6 +265,9 @@
           "outcome" : {
             "type" : "string"
           },
+          "result_summary" : {
+            "type" : "string"
+          },
           "step" : {
             "format" : "int32",
             "type" : "integer"
@@ -333,6 +336,23 @@
         "required" : [ "question" ],
         "type" : "object"
       },
+      "AssetCounts" : {
+        "properties" : {
+          "affected_critical" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "critical" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
       "Evidence" : {
         "properties" : {
           "collected_at" : {
@@ -346,6 +366,27 @@
           },
           "source_url" : {
             "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ExposureCounts" : {
+        "properties" : {
+          "confirmed" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "confirmed_cves" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "possible" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "unknown" : {
+            "format" : "int64",
+            "type" : "integer"
           }
         },
         "type" : "object"
@@ -375,12 +416,310 @@
         },
         "type" : "object"
       },
+      "GraphEdge" : {
+        "properties" : {
+          "match_status" : {
+            "type" : "string"
+          },
+          "reason" : {
+            "type" : "string"
+          },
+          "source" : {
+            "type" : "string"
+          },
+          "target" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "GraphNode" : {
+        "properties" : {
+          "criticality" : {
+            "type" : "string"
+          },
+          "cvss_score" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "environment" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "internet_exposed" : {
+            "type" : "boolean"
+          },
+          "kev_listed" : {
+            "type" : "boolean"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "product" : {
+            "type" : "string"
+          },
+          "severity" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "vendor" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "IntelligenceFreshness" : {
         "properties" : {
           "kev_last_success_at" : {
             "type" : "string"
           },
           "nvd_last_success_at" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "InventoryFreshness" : {
+        "properties" : {
+          "age_hours" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "last_imported_at" : {
+            "type" : "string"
+          },
+          "stale" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "InventoryImportDetail" : {
+        "properties" : {
+          "assets_imported" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "import_id" : {
+            "type" : "string"
+          },
+          "imported_at" : {
+            "type" : "string"
+          },
+          "rejects" : {
+            "items" : {
+              "$ref" : "#/components/schemas/InventoryReject"
+            },
+            "type" : "array"
+          },
+          "rows_accepted" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "rows_received" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "rows_rejected" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "software_imported" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "source_format" : {
+            "type" : "string"
+          },
+          "source_name" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "InventoryImportResult" : {
+        "properties" : {
+          "assets_imported" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "format" : {
+            "type" : "string"
+          },
+          "import_id" : {
+            "type" : "string"
+          },
+          "matching" : {
+            "$ref" : "#/components/schemas/InventoryMatching"
+          },
+          "rejects" : {
+            "items" : {
+              "$ref" : "#/components/schemas/InventoryReject"
+            },
+            "type" : "array"
+          },
+          "rows_accepted" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "rows_received" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "rows_rejected" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "software_imported" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "tenant_id" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "InventoryImportSummary" : {
+        "properties" : {
+          "assets_imported" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "import_id" : {
+            "type" : "string"
+          },
+          "imported_at" : {
+            "type" : "string"
+          },
+          "rows_accepted" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "rows_received" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "rows_rejected" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "software_imported" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "source_format" : {
+            "type" : "string"
+          },
+          "source_name" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "InventoryMatching" : {
+        "properties" : {
+          "created" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "removed" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "software_considered" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "unchanged" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "updated" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "InventoryReject" : {
+        "properties" : {
+          "asset_id" : {
+            "type" : "string"
+          },
+          "errors" : {
+            "items" : {
+              "$ref" : "#/components/schemas/RejectError"
+            },
+            "type" : "array"
+          },
+          "ref" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "OverviewResponse" : {
+        "properties" : {
+          "assets" : {
+            "$ref" : "#/components/schemas/AssetCounts"
+          },
+          "exposure" : {
+            "$ref" : "#/components/schemas/ExposureCounts"
+          },
+          "generated_at" : {
+            "type" : "string"
+          },
+          "inventory" : {
+            "$ref" : "#/components/schemas/InventoryFreshness"
+          },
+          "sources" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SourceFreshness"
+            },
+            "type" : "array"
+          },
+          "stale_after_hours" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "tenant_id" : {
+            "type" : "string"
+          },
+          "top_exposures" : {
+            "items" : {
+              "$ref" : "#/components/schemas/TopExposure"
+            },
+            "type" : "array"
+          },
+          "vulnerabilities" : {
+            "$ref" : "#/components/schemas/VulnerabilityCounts"
+          },
+          "warnings" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "RejectError" : {
+        "properties" : {
+          "field" : {
+            "type" : "string"
+          },
+          "type" : {
             "type" : "string"
           }
         },
@@ -402,6 +741,41 @@
           },
           "version" : {
             "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "SourceFreshness" : {
+        "properties" : {
+          "age_hours" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "last_attempt_at" : {
+            "type" : "string"
+          },
+          "last_status" : {
+            "type" : "string"
+          },
+          "last_success_at" : {
+            "type" : "string"
+          },
+          "records_received" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "records_rejected" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "source_id" : {
+            "type" : "string"
+          },
+          "stale" : {
+            "type" : "boolean"
           }
         },
         "type" : "object"
@@ -455,6 +829,48 @@
           },
           "source_id" : {
             "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "TopExposure" : {
+        "properties" : {
+          "confirmed_assets" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "cve_id" : {
+            "type" : "string"
+          },
+          "cvss_score" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "kev_listed" : {
+            "type" : "boolean"
+          },
+          "severity" : {
+            "type" : "string"
+          },
+          "synthetic" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "VulnerabilityCounts" : {
+        "properties" : {
+          "critical_cvss" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "kev" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
           }
         },
         "type" : "object"
@@ -518,6 +934,79 @@
           }
         },
         "type" : "object"
+      },
+      "VulnerabilityGraph" : {
+        "properties" : {
+          "cve_id" : {
+            "type" : "string"
+          },
+          "edges" : {
+            "items" : {
+              "$ref" : "#/components/schemas/GraphEdge"
+            },
+            "type" : "array"
+          },
+          "nodes" : {
+            "items" : {
+              "$ref" : "#/components/schemas/GraphNode"
+            },
+            "type" : "array"
+          },
+          "truncated" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "VulnerabilitySearchResponse" : {
+        "properties" : {
+          "results" : {
+            "items" : {
+              "$ref" : "#/components/schemas/VulnerabilitySummary"
+            },
+            "type" : "array"
+          },
+          "truncated" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "VulnerabilitySummary" : {
+        "properties" : {
+          "cve_id" : {
+            "type" : "string"
+          },
+          "cvss_score" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "kev_date_added" : {
+            "type" : "string"
+          },
+          "kev_due_date" : {
+            "type" : "string"
+          },
+          "kev_listed" : {
+            "type" : "boolean"
+          },
+          "kev_name" : {
+            "type" : "string"
+          },
+          "published_at" : {
+            "type" : "string"
+          },
+          "severity" : {
+            "type" : "string"
+          },
+          "synthetic" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
       }
     },
     "securitySchemes" : {
@@ -563,6 +1052,112 @@
         },
         "summary" : "Ask the AI security analyst (SECURITY_ANALYST or ADMIN)",
         "tags" : [ "Analyst" ]
+      }
+    },
+    "/api/inventory/import" : {
+      "post" : {
+        "description" : "Validated row by row: accepted rows are imported and matched, rejected rows are reported by position with field names and error types, never cell values. The tenant is the caller's own.",
+        "operationId" : "upload",
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "properties" : {
+                  "file" : {
+                    "format" : "binary",
+                    "type" : "string"
+                  }
+                },
+                "required" : [ "file" ],
+                "type" : "object"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InventoryImportResult"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Upload an asset inventory, CSV or JSON, up to 5 MB (ADMIN only)",
+        "tags" : [ "Inventory" ]
+      }
+    },
+    "/api/inventory/imports" : {
+      "get" : {
+        "operationId" : "imports",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/InventoryImportSummary"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Recent inventory imports of the caller's organization (SECURITY_ANALYST or ADMIN)",
+        "tags" : [ "Inventory" ]
+      }
+    },
+    "/api/inventory/imports/{importId}" : {
+      "get" : {
+        "operationId" : "importDetail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "importId",
+          "required" : true,
+          "schema" : {
+            "pattern" : "^[0-9a-fA-F-]{36}$",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InventoryImportDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "One import with its reject report (SECURITY_ANALYST or ADMIN)",
+        "tags" : [ "Inventory" ]
+      }
+    },
+    "/api/overview" : {
+      "get" : {
+        "description" : "Counts, top confirmed exposures and, for every source and the inventory, when it last succeeded and whether that is too old to call current. The organization comes from the token only.",
+        "operationId" : "overview",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OverviewResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Security overview of the caller's organization",
+        "tags" : [ "Overview" ]
       }
     },
     "/api/sources/status" : {
@@ -615,6 +1210,66 @@
         },
         "summary" : "Start a sync (ADMIN only)",
         "tags" : [ "Sources" ]
+      }
+    },
+    "/api/vulnerabilities" : {
+      "get" : {
+        "description" : "Public intelligence (CVE and CISA KEV), the same for every organization. Descriptions are short snippets.",
+        "operationId" : "search",
+        "parameters" : [ {
+          "description" : "CVE id or words from the description",
+          "in" : "query",
+          "name" : "query",
+          "required" : false,
+          "schema" : {
+            "maxLength" : 100,
+            "minLength" : 2,
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "kevOnly",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "minCvss",
+          "required" : false,
+          "schema" : {
+            "format" : "double",
+            "maximum" : 10.0,
+            "minimum" : 0.0,
+            "type" : "number"
+          }
+        }, {
+          "in" : "query",
+          "name" : "limit",
+          "required" : false,
+          "schema" : {
+            "default" : 20,
+            "format" : "int32",
+            "maximum" : 50,
+            "minimum" : 1,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VulnerabilitySearchResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Search vulnerabilities",
+        "tags" : [ "Vulnerabilities" ]
       }
     },
     "/api/vulnerabilities/{cveId}" : {
@@ -683,6 +1338,44 @@
           }
         },
         "summary" : "Assets of the caller's tenant affected by a CVE",
+        "tags" : [ "Vulnerabilities" ]
+      }
+    },
+    "/api/vulnerabilities/{cveId}/graph" : {
+      "get" : {
+        "description" : "Nodes are assets, software and the CVE; AFFECTED_BY edges carry the match status and reason. Only the caller's own assets are reachable. not_affected matches are hidden unless requested.",
+        "operationId" : "graph",
+        "parameters" : [ {
+          "example" : "CVE-2021-44228",
+          "in" : "path",
+          "name" : "cveId",
+          "required" : true,
+          "schema" : {
+            "pattern" : "^CVE-\\d{4}-\\d{4,}$",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "includeNotAffected",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VulnerabilityGraph"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Graph of the caller's assets, their software and one CVE",
         "tags" : [ "Vulnerabilities" ]
       }
     }
