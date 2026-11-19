@@ -33,4 +33,4 @@ Exact patch versions are recorded in each component's own lockfile or wrapper wh
 - Upgrading a major version requires a new ADR.
 
 ## Status of local installation (2026-11-15)
-Installed: Git, GitHub CLI, Python 3.13, Docker Desktop (engine 29.9.3, Compose v5.7.0) with WSL 2. Not yet installed: JDK 21, uv, Node LTS, pnpm (needed from Modules 03 to 09).
+Installed: Git, GitHub CLI, uv 0.13.9 (project Python pinned to 3.12 via `.python-version`), Docker Desktop (engine 29.9.3, Compose v5.7.0) with WSL 2. Not yet installed: JDK 21 (Module 06), Node LTS and pnpm (Module 09).

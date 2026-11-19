@@ -41,4 +41,13 @@ Reset (deletes all local database data):
 docker compose down -v
 ```
 
+Load the synthetic demo graph and run the tests (needs [uv](https://docs.astral.sh/uv/)):
+
+```bash
+cd intelligence-service
+uv sync
+uv run python -m ingestion.seed_loader   # idempotent; add --reset to start clean
+uv run pytest                            # tests run against the local Memgraph
+```
+
 Services listen on `127.0.0.1` only: Memgraph `7687`, PostgreSQL `5432`, Lab `3000`.

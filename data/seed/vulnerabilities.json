@@ -1,0 +1,112 @@
+{
+  "vulnerabilities": [
+    {
+      "cve_id": "CVE-DEMO-0001",
+      "description": "Fictional remote code execution flaw in Example Server 1.2.x. Fixed in 1.3.0.",
+      "cvss_score": 9.1,
+      "severity": "critical",
+      "published_at": "2026-10-01T00:00:00Z",
+      "evidence": [
+        {
+          "evidence_id": "EVID-0001-A",
+          "source_name": "Synthetic demo advisory",
+          "source_url": "https://example.invalid/advisories/CVE-DEMO-0001",
+          "collected_at": "2026-11-01T00:00:00Z",
+          "summary": "Advisory lists Example Server 1.2.0 through 1.2.3 as affected and 1.3.0 as fixed."
+        }
+      ],
+      "affects": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Server",
+          "version": "1.2.3",
+          "match_status": "confirmed",
+          "match_reason": "Installed version inside advisory range 1.2.0-1.2.3",
+          "matched_by": "seed",
+          "source_ref": "EVID-0001-A"
+        },
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Server",
+          "version": "1.2.2",
+          "match_status": "confirmed",
+          "match_reason": "Installed version inside advisory range 1.2.0-1.2.3",
+          "matched_by": "seed",
+          "source_ref": "EVID-0001-A"
+        },
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Server",
+          "version": "1.3.0",
+          "match_status": "not_affected",
+          "match_reason": "Installed version is the fixed release 1.3.0",
+          "matched_by": "seed",
+          "source_ref": "EVID-0001-A"
+        }
+      ]
+    },
+    {
+      "cve_id": "CVE-DEMO-0002",
+      "description": "Fictional request-smuggling flaw in Example Proxy 4.1.x.",
+      "cvss_score": 7.5,
+      "severity": "high",
+      "published_at": "2026-10-10T00:00:00Z",
+      "evidence": [
+        {
+          "evidence_id": "EVID-0002-A",
+          "source_name": "Synthetic demo advisory",
+          "source_url": "https://example.invalid/advisories/CVE-DEMO-0002",
+          "collected_at": "2026-11-01T00:00:00Z",
+          "summary": "Advisory lists Example Proxy 4.1.0 as affected."
+        }
+      ],
+      "affects": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Proxy",
+          "version": "4.1.0",
+          "match_status": "confirmed",
+          "match_reason": "Installed version equals advisory version 4.1.0",
+          "matched_by": "seed",
+          "source_ref": "EVID-0002-A"
+        },
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Proxy",
+          "version": null,
+          "match_status": "unknown",
+          "match_reason": "Product matches but installed version is unknown; cannot confirm or exclude",
+          "matched_by": "seed",
+          "source_ref": "EVID-0002-A"
+        }
+      ]
+    },
+    {
+      "cve_id": "CVE-DEMO-0003",
+      "description": "Fictional authentication bypass in Example DB 8.0.x.",
+      "cvss_score": 8.1,
+      "severity": "high",
+      "published_at": "2026-10-20T00:00:00Z",
+      "evidence": [
+        {
+          "evidence_id": "EVID-0003-A",
+          "source_name": "Synthetic demo advisory",
+          "source_url": "https://example.invalid/advisories/CVE-DEMO-0003",
+          "collected_at": "2026-11-01T00:00:00Z",
+          "summary": "Advisory lists Example DB 8.0.1 as affected."
+        }
+      ],
+      "affects": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example DB",
+          "version": "8.0.1",
+          "match_status": "confirmed",
+          "match_reason": "Installed version equals advisory version 8.0.1",
+          "matched_by": "seed",
+          "source_ref": "EVID-0003-A"
+        }
+      ]
+    }
+  ]
+}

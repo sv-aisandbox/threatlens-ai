@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://threatlens.local/schemas/inventory.schema.json",
+  "title": "ThreatLens asset inventory",
+  "description": "Asset inventory for one tenant. Software version and CPE are optional; when absent, matching must return 'unknown' rather than guess.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["tenant_id", "tenant_name", "assets"],
+  "properties": {
+    "tenant_id": { "type": "string", "pattern": "^TENANT-[A-Z0-9-]{1,40}$" },
+    "tenant_name": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "assets": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": { "$ref": "#/$defs/asset" }
+    }
+  },
+  "$defs": {
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["asset_id", "name", "asset_type", "environment", "criticality", "internet_exposed"],
+      "properties": {
+        "asset_id": { "type": "string", "pattern": "^ASSET-[A-Z0-9-]{1,40}$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "asset_type": { "enum": ["server", "workstation", "network_device", "container", "database", "application"] },
+        "environment": { "enum": ["production", "staging", "development"] },
+        "criticality": { "enum": ["critical", "high", "medium", "low"] },
+        "internet_exposed": { "type": "boolean" },
+        "software": {
+          "type": "array",
+          "maxItems": 500,
+          "items": { "$ref": "#/$defs/software" }
+        }
+      }
+    },
+    "software": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["vendor", "product"],
+      "properties": {
+        "vendor": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "product": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "version": { "type": ["string", "null"], "maxLength": 100 },
+        "cpe": {
+          "type": ["string", "null"],
+          "description": "CPE 2.3 formatted string, for example cpe:2.3:a:vendor:product:1.2.3:*:*:*:*:*:*:*",
+          "pattern": "^cpe:2\\.3:[aho](:[^:\\s]*){10}$"
+        }
+      }
+    }
+  }
+}

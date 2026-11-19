@@ -1,0 +1,19 @@
+[project]
+name = "threatlens-intelligence-service"
+version = "0.1.0"
+description = "ThreatLens AI intelligence service: graph seed, ingestion, matching and graph queries"
+requires-python = ">=3.12"
+dependencies = [
+    "neo4j>=5.20",
+    "python-dotenv>=1.0",
+    "jsonschema>=4.22",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

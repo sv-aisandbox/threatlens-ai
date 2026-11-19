@@ -30,8 +30,8 @@ Status values: `todo` · `in-progress` · `done`
 | # | Module | Roadmap phase | Checkpoint | Est. | Status | File |
 |---|---|---|---|---|---|---|
 | 01 | Repository and workspace | 0 | — | ½ wk | in-progress | [module-01](modules/module-01.md) |
-| 02 | Local infrastructure | 1 | 1 Local foundation | ½ wk | in-progress | [module-02](modules/module-02.md) |
-| 03 | Graph model and seed | 2 | 2 Graph slice | 1 wk | todo | [module-03](modules/module-03.md) |
+| 02 | Local infrastructure | 1 | 1 Local foundation | ½ wk | done | [module-02](modules/module-02.md) |
+| 03 | Graph model and seed | 2 | 2 Graph slice | 1 wk | in-progress | [module-03](modules/module-03.md) |
 | 04 | NVD + CISA KEV ingestion | 3 | 3 External intelligence | 1–1½ wk | todo | [module-04](modules/module-04.md) |
 | 05 | Inventory import and matching | 4 | 4 Asset matching | 1 wk | todo | [module-05](modules/module-05.md) |
 | 06 | Backend API and security boundary | 5 | 5 Backend API | 1–1½ wk | todo | [module-06](modules/module-06.md) |
@@ -88,4 +88,5 @@ MCP names are generic; confirm the exact server/package and install steps before
 Append one line per completed task or module: `YYYY-MM-DD · module · task · result (commands run, pass/fail)`.
 
 - 2026-11-15 · 01 · 0.1–0.7 · repo threatlens-ai created (private), skeleton, docs, CLAUDE.md, config files, README, ADR 0001 committed and pushed to main; .env verified ignored, git status clean. 0.8 pending (you).
-- 2026-11-19 · 02 · 1.1–1.5 · Docker Desktop + WSL 2 installed; compose (memgraph-mage 3.14.0, postgres 17.12, lab profile) healthy; scripts/verify-infra.sh passes on a fresh clone of feat/local-infra (up --wait, verify exit 0, down -v). PR pending merge.
+- 2026-11-19 · 02 · 1.1–1.5 · Docker Desktop + WSL 2 installed; compose (memgraph-mage 3.14.0, postgres 17.12, lab profile) healthy; scripts/verify-infra.sh passes on a fresh clone of feat/local-infra (up --wait, verify exit 0, down -v). PR #1 merged; module done.
+- 2026-11-19 · 03 · 2.1–2.8 · ADR 0002, schema.cypher, inventory JSON Schema, synthetic seed (2 tenants, 16 assets, 3 CVEs), idempotent loader, affected_assets query; `uv run pytest` 16 passed against Memgraph 3.14.0; mutation check (tenant filter removed) failed 5 tests as expected; seed CLI x3 gave 33 nodes / 40 rels each time. PR pending merge.

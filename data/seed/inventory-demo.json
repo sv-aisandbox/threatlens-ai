@@ -1,0 +1,191 @@
+{
+  "tenant_id": "TENANT-DEMO",
+  "tenant_name": "Demo Corp (synthetic)",
+  "assets": [
+    {
+      "asset_id": "ASSET-001",
+      "name": "payment-api-01",
+      "asset_type": "server",
+      "environment": "production",
+      "criticality": "critical",
+      "internet_exposed": true,
+      "software": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Server",
+          "version": "1.2.3",
+          "cpe": "cpe:2.3:a:example_vendor:example_server:1.2.3:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-002",
+      "name": "payment-api-02",
+      "asset_type": "server",
+      "environment": "production",
+      "criticality": "critical",
+      "internet_exposed": true,
+      "software": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Server",
+          "version": "1.2.2",
+          "cpe": "cpe:2.3:a:example_vendor:example_server:1.2.2:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-003",
+      "name": "orders-api-01",
+      "asset_type": "server",
+      "environment": "production",
+      "criticality": "high",
+      "internet_exposed": true,
+      "software": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Server",
+          "version": "1.3.0",
+          "cpe": "cpe:2.3:a:example_vendor:example_server:1.3.0:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-004",
+      "name": "edge-proxy-01",
+      "asset_type": "network_device",
+      "environment": "production",
+      "criticality": "high",
+      "internet_exposed": true,
+      "software": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Proxy",
+          "version": "4.1.0",
+          "cpe": "cpe:2.3:a:example_vendor:example_proxy:4.1.0:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-005",
+      "name": "legacy-proxy-01",
+      "asset_type": "network_device",
+      "environment": "staging",
+      "criticality": "medium",
+      "internet_exposed": false,
+      "software": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Proxy",
+          "version": null,
+          "cpe": "cpe:2.3:a:example_vendor:example_proxy:*:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-006",
+      "name": "core-db-01",
+      "asset_type": "database",
+      "environment": "production",
+      "criticality": "critical",
+      "internet_exposed": false,
+      "software": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example DB",
+          "version": "8.0.1",
+          "cpe": "cpe:2.3:a:example_vendor:example_db:8.0.1:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-007",
+      "name": "reports-db-01",
+      "asset_type": "database",
+      "environment": "staging",
+      "criticality": "medium",
+      "internet_exposed": false,
+      "software": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example DB",
+          "version": "8.1.0",
+          "cpe": "cpe:2.3:a:example_vendor:example_db:8.1.0:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-008",
+      "name": "staging-api-01",
+      "asset_type": "server",
+      "environment": "staging",
+      "criticality": "medium",
+      "internet_exposed": false,
+      "software": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Server",
+          "version": "1.2.3",
+          "cpe": "cpe:2.3:a:example_vendor:example_server:1.2.3:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-009",
+      "name": "dev-laptop-01",
+      "asset_type": "workstation",
+      "environment": "development",
+      "criticality": "low",
+      "internet_exposed": false,
+      "software": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Editor",
+          "version": "3.0.0",
+          "cpe": "cpe:2.3:a:example_vendor:example_editor:3.0.0:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-010",
+      "name": "web-frontend-01",
+      "asset_type": "application",
+      "environment": "production",
+      "criticality": "high",
+      "internet_exposed": true,
+      "software": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Web UI",
+          "version": "2.0.0",
+          "cpe": "cpe:2.3:a:example_vendor:example_web_ui:2.0.0:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-011",
+      "name": "jump-host-01",
+      "asset_type": "server",
+      "environment": "production",
+      "criticality": "high",
+      "internet_exposed": false,
+      "software": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Proxy",
+          "version": "4.1.0",
+          "cpe": "cpe:2.3:a:example_vendor:example_proxy:4.1.0:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-012",
+      "name": "build-runner-01",
+      "asset_type": "container",
+      "environment": "development",
+      "criticality": "low",
+      "internet_exposed": false,
+      "software": []
+    }
+  ]
+}

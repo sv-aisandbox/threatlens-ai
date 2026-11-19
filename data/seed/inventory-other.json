@@ -1,0 +1,70 @@
+{
+  "tenant_id": "TENANT-OTHER",
+  "tenant_name": "Other Org (synthetic)",
+  "assets": [
+    {
+      "asset_id": "ASSET-O01",
+      "name": "other-api-01",
+      "asset_type": "server",
+      "environment": "production",
+      "criticality": "critical",
+      "internet_exposed": true,
+      "software": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Server",
+          "version": "1.2.3",
+          "cpe": "cpe:2.3:a:example_vendor:example_server:1.2.3:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-O02",
+      "name": "other-db-01",
+      "asset_type": "database",
+      "environment": "production",
+      "criticality": "high",
+      "internet_exposed": false,
+      "software": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example DB",
+          "version": "8.0.1",
+          "cpe": "cpe:2.3:a:example_vendor:example_db:8.0.1:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-O03",
+      "name": "other-proxy-01",
+      "asset_type": "network_device",
+      "environment": "production",
+      "criticality": "medium",
+      "internet_exposed": true,
+      "software": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Proxy",
+          "version": null,
+          "cpe": "cpe:2.3:a:example_vendor:example_proxy:*:*:*:*:*:*:*:*"
+        }
+      ]
+    },
+    {
+      "asset_id": "ASSET-O04",
+      "name": "other-web-01",
+      "asset_type": "application",
+      "environment": "staging",
+      "criticality": "low",
+      "internet_exposed": false,
+      "software": [
+        {
+          "vendor": "Example Vendor",
+          "product": "Example Web UI",
+          "version": "2.0.0",
+          "cpe": "cpe:2.3:a:example_vendor:example_web_ui:2.0.0:*:*:*:*:*:*:*"
+        }
+      ]
+    }
+  ]
+}

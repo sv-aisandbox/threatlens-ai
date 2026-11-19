@@ -17,14 +17,14 @@
 - **G4** Give synthetic `Software` a CPE 2.3 string.
 
 ## Tasks
-- [ ] 2.1 **(Claude)** ADR 0002 — tenant model.
-- [ ] 2.2 **(Claude)** `database/memgraph/schema.cypher`: uniqueness constraints/indexes on `asset_id`, `software_id`, `cve_id`, `evidence_id`, `tenant_id` (verify syntax against pinned version).
-- [ ] 2.3 **(Claude)** `data/schemas/`: JSON Schemas for the inventory format (including CPE field).
-- [ ] 2.4 **(Claude)** `data/seed/`: tenants `TENANT-DEMO` and `TENANT-OTHER`, ~10–20 assets, software with CPEs, 2–3 fictional CVEs, Evidence nodes. Include a **negative case** (unaffected version) and an **unknown case** (no version).
-- [ ] 2.5 **(Claude)** Idempotent seed loader (Python, `MERGE`, parameterized).
-- [ ] 2.6 **(Claude)** `graph_queries/affected_assets.py`: tenant-filtered, parameterized query returning asset, software, CVE, match status, evidence.
-- [ ] 2.7 **(Claude)** pytest against real Memgraph: expected asset returned; negative case not returned; tenant B sees nothing of A; reseed creates no duplicates.
-- [ ] 2.8 **(Claude)** `docs/architecture/graph-model.md`.
+- [x] 2.1 **(Claude)** ADR 0002 — tenant model.
+- [x] 2.2 **(Claude)** `database/memgraph/schema.cypher`: uniqueness constraints/indexes on `asset_id`, `software_id`, `cve_id`, `evidence_id`, `tenant_id` (verify syntax against pinned version).
+- [x] 2.3 **(Claude)** `data/schemas/`: JSON Schemas for the inventory format (including CPE field).
+- [x] 2.4 **(Claude)** `data/seed/`: tenants `TENANT-DEMO` and `TENANT-OTHER`, ~10–20 assets, software with CPEs, 2–3 fictional CVEs, Evidence nodes. Include a **negative case** (unaffected version) and an **unknown case** (no version).
+- [x] 2.5 **(Claude)** Idempotent seed loader (Python, `MERGE`, parameterized).
+- [x] 2.6 **(Claude)** `graph_queries/affected_assets.py`: tenant-filtered, parameterized query returning asset, software, CVE, match status, evidence.
+- [x] 2.7 **(Claude)** pytest against real Memgraph: expected asset returned; negative case not returned; tenant B sees nothing of A; reseed creates no duplicates.
+- [x] 2.8 **(Claude)** `docs/architecture/graph-model.md`.
 
 ## Best practices for this module
 - Parameterized Cypher only. Bounded results. Stable IDs. Test-first for the query.
