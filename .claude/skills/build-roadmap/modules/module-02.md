@@ -16,11 +16,11 @@
 - **A2 (you):** Install Docker Desktop (WSL 2 backend). Docker Hub login optional.
 
 ## Tasks
-- [ ] 1.1 **(you)** Install Docker Desktop.
-- [ ] 1.2 **(Claude)** `docker-compose.yml`: `memgraph/memgraph-mage`, `memgraph/lab`, `postgres`, private network, named volumes, ports bound to `127.0.0.1` only.
-- [ ] 1.3 **(Claude)** Health checks for both databases; pinned image tags (no `latest`).
-- [ ] 1.4 **(Claude)** `scripts/verify-infra`: `RETURN 1` on Memgraph, `SELECT 1` on Postgres.
-- [ ] 1.5 **(Claude)** README Quick start: start, verify, stop, reset volumes.
+- [x] 1.1 **(you)** Install Docker Desktop.
+- [x] 1.2 **(Claude)** `docker-compose.yml`: `memgraph/memgraph-mage`, `memgraph/lab`, `postgres`, private network, named volumes, ports bound to `127.0.0.1` only.
+- [x] 1.3 **(Claude)** Health checks for both databases; pinned image tags (no `latest`).
+- [x] 1.4 **(Claude)** `scripts/verify-infra`: `RETURN 1` on Memgraph, `SELECT 1` on Postgres.
+- [x] 1.5 **(Claude)** README Quick start: start, verify, stop, reset volumes.
 
 ## Best practices for this module
 - Databases never exposed beyond localhost; credentials from `.env`.
