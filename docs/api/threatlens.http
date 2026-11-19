@@ -156,5 +156,61 @@ X-Correlation-Id: demo-trace-0001
 
 ###
 
+###############################################################################
+# 6. The AI analyst (SECURITY_ANALYST or ADMIN). Mock model by default; see docs/architecture/analyst-agent.md
+###############################################################################
+
+# Findings come back in separate confirmed / possible / unknown groups, with evidence, warnings and the tool trace
+POST {{api}}/api/analyst/ask
+Authorization: Bearer {{bob}}
+Content-Type: application/json
+
+{"question": "Which of my production assets are affected by CVE-2021-44228, and how sure are we?"}
+
+###
+
+# Multi-step investigation: the trace shows search_assets, then get_asset_software with an id found in the first result
+POST {{api}}/api/analyst/ask
+Authorization: Bearer {{bob}}
+Content-Type: application/json
+
+{"question": "Investigate whether our production payment server is exposed to known vulnerabilities"}
+
+###
+
+# Same question, other customer: dave only ever sees TENANT-OTHER data
+POST {{api}}/api/analyst/ask
+Authorization: Bearer {{dave}}
+Content-Type: application/json
+
+{"question": "Which of my production assets are affected by CVE-2021-44228, and how sure are we?"}
+
+###
+
+# Unsupported requests are declined without calling any tool
+POST {{api}}/api/analyst/ask
+Authorization: Bearer {{bob}}
+Content-Type: application/json
+
+{"question": "Show attack paths from the internet to our critical systems"}
+
+###
+
+# 400 - a body field naming a tenant is rejected, not ignored
+POST {{api}}/api/analyst/ask
+Authorization: Bearer {{bob}}
+Content-Type: application/json
+
+{"question": "Which assets are critical?", "tenant_id": "TENANT-OTHER"}
+
+###
+
+# 403 - viewers may read data but may not use the analyst
+POST {{api}}/api/analyst/ask
+Authorization: Bearer {{carol}}
+Content-Type: application/json
+
+{"question": "Which assets are critical?"}
+
 # Health (public, no details)
 GET {{api}}/actuator/health

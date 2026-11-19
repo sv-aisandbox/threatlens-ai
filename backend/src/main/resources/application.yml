@@ -42,6 +42,8 @@ threatlens:
     jwt-secret: ${INTERNAL_JWT_SECRET}
     connect-timeout: 2s
     read-timeout: 15s
+    analyst-read-timeout: 120s
   rate-limit:
     requests-per-minute: 120
     sync-per-minute: 5
+    analyst-per-minute: 10

@@ -23,7 +23,7 @@ public record AppProperties(Security security, Intelligence intelligence, RateLi
                     "INTERNAL_JWT_SECRET must be set and at least " + MIN_SECRET_BYTES + " bytes long");
         }
         if (rateLimit == null) {
-            rateLimit = new RateLimit(120, 5);
+            rateLimit = new RateLimit(120, 5, 10);
         }
     }
 
@@ -33,10 +33,13 @@ public record AppProperties(Security security, Intelligence intelligence, RateLi
 
     public record Security(String issuer, String jwkSetUri, String audience) {}
 
-    public record Intelligence(String baseUrl, String jwtSecret, Duration connectTimeout, Duration readTimeout) {
+    public record Intelligence(
+            String baseUrl, String jwtSecret, Duration connectTimeout, Duration readTimeout, Duration analystReadTimeout) {
         public Intelligence {
             connectTimeout = connectTimeout == null ? Duration.ofSeconds(2) : connectTimeout;
             readTimeout = readTimeout == null ? Duration.ofSeconds(15) : readTimeout;
+            // An analyst answer involves a model call and several tool calls, so it gets a longer (still bounded) timeout.
+            analystReadTimeout = analystReadTimeout == null ? Duration.ofSeconds(120) : analystReadTimeout;
         }
 
         /** Keep the secret out of logs and accidental toString() output. */
@@ -46,5 +49,5 @@ public record AppProperties(Security security, Intelligence intelligence, RateLi
         }
     }
 
-    public record RateLimit(int requestsPerMinute, int syncPerMinute) {}
+    public record RateLimit(int requestsPerMinute, int syncPerMinute, int analystPerMinute) {}
 }

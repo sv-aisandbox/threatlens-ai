@@ -42,7 +42,7 @@ class OpenApiExportTest extends AbstractApiTest {
     void documentedContractIsTheExpectedOne() {
         String raw = asUser(admin("TENANT-DEMO")).get("/v3/api-docs").then().statusCode(200).extract().asString();
         for (String expected : List.of("/api/vulnerabilities/{cveId}", "/api/vulnerabilities/{cveId}/affected-assets",
-                "/api/sources/status", "/api/sources/{sourceId}/sync", "bearerAuth")) {
+                "/api/sources/status", "/api/sources/{sourceId}/sync", "/api/analyst/ask", "bearerAuth")) {
             assertThat(raw).contains(expected);
         }
         assertThat(raw).as("tenant is never a parameter").doesNotContain("tenant_id\",\"in\"").doesNotContain("\"name\":\"tenant");

@@ -1,0 +1,4 @@
+{
+  "mock": {"tool_choice": 1.0, "args": 1.0, "groundedness": 1.0, "refusal": 1.0},
+  "real": {"tool_choice": 0.9, "args": 0.9, "groundedness": 1.0, "refusal": 1.0}
+}

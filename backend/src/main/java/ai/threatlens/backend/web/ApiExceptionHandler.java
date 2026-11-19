@@ -52,8 +52,15 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UpstreamException.class)
     ResponseEntity<Object> upstream(UpstreamException e) {
-        HttpStatus status = e.status() == 504 ? HttpStatus.GATEWAY_TIMEOUT : HttpStatus.BAD_GATEWAY;
-        return problem(status, status.getReasonPhrase(), "The intelligence service is currently unavailable.");
+        HttpStatus status = switch (e.status()) {
+            case 504 -> HttpStatus.GATEWAY_TIMEOUT;
+            case 503 -> HttpStatus.SERVICE_UNAVAILABLE;
+            default -> HttpStatus.BAD_GATEWAY;
+        };
+        String detail = status == HttpStatus.SERVICE_UNAVAILABLE
+                ? "The analyst is currently unavailable. Try again later."
+                : "The intelligence service is currently unavailable.";
+        return problem(status, status.getReasonPhrase(), detail);
     }
 
     @ExceptionHandler(AccessDeniedException.class)

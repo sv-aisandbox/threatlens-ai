@@ -10,7 +10,8 @@ import org.springframework.test.context.TestPropertySource;
 
 @TestPropertySource(properties = {
     "threatlens.rate-limit.requests-per-minute=3",
-    "threatlens.rate-limit.sync-per-minute=1"
+    "threatlens.rate-limit.sync-per-minute=1",
+    "threatlens.rate-limit.analyst-per-minute=2"
 })
 class RateLimitTest extends AbstractApiTest {
 
@@ -36,6 +37,17 @@ class RateLimitTest extends AbstractApiTest {
         asUser(admin).post("/api/sources/kev/sync").then().statusCode(202);
         asUser(admin).post("/api/sources/kev/sync").then().statusCode(429);
         asUser(admin).get("/api/sources/status").then().statusCode(200); // reads are counted separately
+    }
+
+    @Test
+    void analystQuestionsHaveTheirOwnSmallBudget() {
+        String analyst = analyst("TENANT-DEMO");
+        for (int i = 0; i < 2; i++) {
+            asUser(analyst).contentType("application/json").body("{\"question\":\"Which assets are critical?\"}").post("/api/analyst/ask").then().statusCode(200);
+        }
+        asUser(analyst).contentType("application/json").body("{\"question\":\"Which assets are critical?\"}").post("/api/analyst/ask").then()
+                .statusCode(429).contentType("application/problem+json").header("Retry-After", matchesPattern("\\d+"));
+        asUser(analyst).get("/api/sources/status").then().statusCode(200); // reads keep their own budget
     }
 
     @Test
