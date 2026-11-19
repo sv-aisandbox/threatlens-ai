@@ -14,6 +14,7 @@ dependencies = [
     "uvicorn>=0.54.0",
     "pyjwt>=2.10",
     "mcp>=2.3,<3",
+    "anthropic>=2.10,<3",
 ]
 
 [dependency-groups]

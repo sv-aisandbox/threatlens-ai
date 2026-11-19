@@ -87,6 +87,252 @@
         },
         "type" : "object"
       },
+      "AnalystAnswer" : {
+        "properties" : {
+          "answer" : {
+            "type" : "string"
+          },
+          "correlation_id" : {
+            "type" : "string"
+          },
+          "evidence" : {
+            "items" : {
+              "$ref" : "#/components/schemas/AnalystEvidence"
+            },
+            "type" : "array"
+          },
+          "findings" : {
+            "$ref" : "#/components/schemas/AnalystFindings"
+          },
+          "freshness" : {
+            "$ref" : "#/components/schemas/Freshness"
+          },
+          "grounding" : {
+            "$ref" : "#/components/schemas/AnalystGrounding"
+          },
+          "outcome" : {
+            "type" : "string"
+          },
+          "summary" : {
+            "$ref" : "#/components/schemas/AnalystSummary"
+          },
+          "trace" : {
+            "items" : {
+              "$ref" : "#/components/schemas/AnalystTraceStep"
+            },
+            "type" : "array"
+          },
+          "usage" : {
+            "$ref" : "#/components/schemas/AnalystUsage"
+          },
+          "warnings" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "AnalystEvidence" : {
+        "properties" : {
+          "collected_at" : {
+            "type" : "string"
+          },
+          "content_hash" : {
+            "type" : "string"
+          },
+          "evidence_id" : {
+            "type" : "string"
+          },
+          "source_name" : {
+            "type" : "string"
+          },
+          "source_url" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "AnalystFinding" : {
+        "properties" : {
+          "asset_id" : {
+            "type" : "string"
+          },
+          "asset_name" : {
+            "type" : "string"
+          },
+          "criticality" : {
+            "type" : "string"
+          },
+          "cve_id" : {
+            "type" : "string"
+          },
+          "environment" : {
+            "type" : "string"
+          },
+          "evidence_ids" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "internet_exposed" : {
+            "type" : "boolean"
+          },
+          "match_status" : {
+            "type" : "string"
+          },
+          "matched_at" : {
+            "type" : "string"
+          },
+          "reason" : {
+            "type" : "string"
+          },
+          "software" : {
+            "$ref" : "#/components/schemas/FindingSoftware"
+          }
+        },
+        "type" : "object"
+      },
+      "AnalystFindings" : {
+        "properties" : {
+          "confirmed" : {
+            "items" : {
+              "$ref" : "#/components/schemas/AnalystFinding"
+            },
+            "type" : "array"
+          },
+          "possible" : {
+            "items" : {
+              "$ref" : "#/components/schemas/AnalystFinding"
+            },
+            "type" : "array"
+          },
+          "unknown" : {
+            "items" : {
+              "$ref" : "#/components/schemas/AnalystFinding"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "AnalystGrounding" : {
+        "properties" : {
+          "ok" : {
+            "type" : "boolean"
+          },
+          "ungrounded" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "AnalystSummary" : {
+        "properties" : {
+          "confirmed_exposures" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "possible" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "unknown" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "AnalystTraceStep" : {
+        "properties" : {
+          "args" : {
+            "additionalProperties" : { },
+            "type" : "object"
+          },
+          "injection_suspected" : {
+            "type" : "boolean"
+          },
+          "latency_ms" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "outcome" : {
+            "type" : "string"
+          },
+          "step" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "tool" : {
+            "type" : "string"
+          },
+          "tool_correlation_id" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "AnalystUsage" : {
+        "properties" : {
+          "cache_read_tokens" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "cache_write_tokens" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "cost_usd" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "input_tokens" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "latency_ms" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "model" : {
+            "type" : "string"
+          },
+          "output_tokens" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "provider" : {
+            "type" : "string"
+          },
+          "steps" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "tool_calls" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "AskRequest" : {
+        "properties" : {
+          "question" : {
+            "example" : "Which of my production assets are affected by CVE-2021-44228, and how sure are we?",
+            "maxLength" : 2000,
+            "minLength" : 3,
+            "type" : "string"
+          }
+        },
+        "required" : [ "question" ],
+        "type" : "object"
+      },
       "Evidence" : {
         "properties" : {
           "collected_at" : {
@@ -99,6 +345,20 @@
             "type" : "string"
           },
           "source_url" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "FindingSoftware" : {
+        "properties" : {
+          "product" : {
+            "type" : "string"
+          },
+          "vendor" : {
+            "type" : "string"
+          },
+          "version" : {
             "type" : "string"
           }
         },
@@ -275,6 +535,36 @@
   },
   "openapi" : "3.1.0",
   "paths" : {
+    "/api/analyst/ask" : {
+      "post" : {
+        "description" : "Answers from the caller's own tenant only. Findings are built from tool results and kept in confirmed / possible / unknown groups; evidence, freshness warnings and the full tool trace are included.",
+        "operationId" : "ask",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AskRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AnalystAnswer"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Ask the AI security analyst (SECURITY_ANALYST or ADMIN)",
+        "tags" : [ "Analyst" ]
+      }
+    },
     "/api/sources/status" : {
       "get" : {
         "description" : "Shows last attempt, last success and counters.",

@@ -5,6 +5,7 @@ Every route requires a short-lived service JWT. The tenant and roles come from t
 no route accepts a tenant parameter, and ignored query/header tenant hints cannot widen access.
 """
 
+import asyncio
 import logging
 import os
 import re
@@ -18,9 +19,12 @@ from typing import Annotated, Any, Literal
 import psycopg
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Path, Query, Request
 from neo4j import Driver
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.config import get_driver, nvd_api_key, pg_conninfo
+from agent.agent import AnalystAgent, AnalystUnavailable, Caller, QuestionError
+from agent.factory import build_agent
+from agent.models import ModelError
 from app.service_auth import AuthError, Principal, validate_secret, verify_service_token
 from graph_queries.affected_assets import DEFAULT_STATUSES, get_affected_assets_with_freshness
 from graph_queries.vulnerability import get_vulnerability
@@ -42,6 +46,16 @@ class NvdSyncRequest(BaseModel):
     until: datetime | None = None
 
 
+class AskRequest(BaseModel):
+    """Only the question. Any other field (a tenant, a role, a tool list) is rejected, not ignored."""
+
+    model_config = ConfigDict(extra="forbid")
+    question: str = Field(min_length=3, max_length=2000)
+
+
+MAX_CONCURRENT_ASKS = 4
+
+
 class ImportCveRequest(BaseModel):
     cve_id: str = Field(pattern=CVE_ID_RE.pattern, max_length=40)
 
@@ -52,6 +66,7 @@ def create_app(
     conn_factory: Callable[[], psycopg.Connection] | None = None,
     nvd_client_factory: Callable[[], NvdClient] | None = None,
     kev_fetch: Callable[[], Any] | None = None,
+    analyst_factory: Callable[[], AnalystAgent] | None = None,
 ) -> FastAPI:
     if not logging.getLogger().handlers:  # visible request logs (with correlation ids) when run by uvicorn
         logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -169,6 +184,38 @@ def create_app(
 
         background.add_task(job)
         return {"accepted": True, "source_id": source_id}
+
+    analyst_lock = threading.Lock()
+    analyst_cache: dict[str, AnalystAgent] = {}
+    app.state.ask_slots = threading.BoundedSemaphore(MAX_CONCURRENT_ASKS)
+
+    def analyst() -> AnalystAgent:
+        with analyst_lock:
+            if "agent" not in analyst_cache:
+                analyst_cache["agent"] = (analyst_factory or (lambda: build_agent(graph(), conn_factory)))()
+            return analyst_cache["agent"]
+
+    @app.post("/internal/v1/analyst/ask")
+    def ask(body: AskRequest, request: Request, principal: Principal = Depends(auth("ADMIN", "SECURITY_ANALYST"))) -> dict[str, Any]:
+        cid = request.state.correlation_id
+        if not app.state.ask_slots.acquire(blocking=False):
+            raise HTTPException(status_code=429, detail="the analyst is busy; retry shortly")
+        try:
+            try:
+                agent = analyst()
+            except ModelError as exc:
+                logger.error("analyst not configured: %s cid=%s", exc.code, cid)
+                raise HTTPException(status_code=503, detail="analyst_unavailable") from None
+            caller = Caller(subject=principal.subject, tenant_id=principal.tenant_id, roles=principal.roles, correlation_id=cid)
+            try:
+                return asyncio.run(agent.ask(body.question, caller))
+            except QuestionError:
+                raise HTTPException(status_code=422, detail="invalid question") from None
+            except AnalystUnavailable as exc:
+                logger.error("analyst unavailable: %s cid=%s", exc.code, cid)
+                raise HTTPException(status_code=503, detail="analyst_unavailable") from None
+        finally:
+            app.state.ask_slots.release()
 
     @app.post("/internal/v1/vulnerabilities/import")
     def import_cve(body: ImportCveRequest, _: Principal = admin) -> dict[str, Any]:

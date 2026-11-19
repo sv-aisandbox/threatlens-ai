@@ -68,3 +68,47 @@ def mint(secret: str = SECRET, *, sub: str = "user-1", tenant: str | None = "TEN
 
 def bearer(token: str, **headers) -> dict[str, str]:
     return {"Authorization": f"Bearer {token}", **headers}
+
+
+# ---- scripted model for agent tests -----------------------------------------------------------------------------------
+
+
+class ScriptedAdapter:
+    """Plays a fixed sequence of model turns. A step is a ModelTurn or a callable(messages, tools) -> ModelTurn.
+
+    Lets a test play an honest model or a *compromised* one that obeys injected instructions, to prove the agent's
+    controls do not depend on the model behaving. The last step repeats if the loop asks for more turns.
+    """
+
+    provider = "scripted"
+
+    def __init__(self, steps, model="claude-opus-5-5"):
+        self.model = model
+        self.steps = list(steps)
+        self.calls = []
+
+    def create(self, *, system, messages, tools):
+        self.calls.append({"system": system, "messages": list(messages), "tools": [t["name"] for t in tools]})
+        index = min(len(self.calls) - 1, len(self.steps) - 1)
+        step = self.steps[index]
+        if isinstance(step, BaseException):
+            raise step
+        return step(messages, tools) if callable(step) else step
+
+
+def turn_tools(*calls, usage=None, content=None, text=""):
+    """A model turn that requests tools. calls: (name, arguments) pairs."""
+    from agent.models import ModelTurn, ToolCall, Usage
+
+    tool_calls = [ToolCall(id=f"toolu_{n}_{name}", name=name, input=args) for n, (name, args) in enumerate(calls, start=1)]
+    blocks = content if content is not None else []
+    blocks = list(blocks) + [{"type": "tool_use", "id": c.id, "name": c.name, "input": c.input} for c in tool_calls]
+    return ModelTurn(text=text, tool_calls=tool_calls, stop_reason="tool_use", usage=usage or Usage(100, 20), assistant_content=blocks,
+                     model="claude-opus-5-5")
+
+
+def turn_text(text, usage=None, stop="end_turn"):
+    from agent.models import ModelTurn, Usage
+
+    return ModelTurn(text=text, tool_calls=[], stop_reason=stop, usage=usage or Usage(100, 20),
+                     assistant_content=[{"type": "text", "text": text}], model="claude-opus-5-5")

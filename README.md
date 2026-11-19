@@ -85,6 +85,12 @@ Two read-only MCP servers expose the intelligence to any MCP client over stdio: 
 
 The repository's [`.mcp.json`](.mcp.json) already defines both servers: open the project in Claude Code, approve them, and ask *"Which of my production assets are affected by CVE-2021-44228, and how sure are we?"* Steps, other clients and troubleshooting: [docs/mcp/connecting.md](docs/mcp/connecting.md). Tool reference: [docs/mcp/tools.md](docs/mcp/tools.md).
 
+## AI analyst
+
+`POST /api/analyst/ask` (SECURITY_ANALYST or ADMIN) answers plain-language questions such as *"Which of my production assets are affected by CVE-2021-44228, and how sure are we?"*. The agent chooses a few tools, calls the same audited MCP tools described above, and returns the narrative together with findings kept in `confirmed` / `possible` / `unknown` groups, cited evidence with collection times, freshness warnings and a full tool trace. The tenant comes from the token and can never be supplied by the question or the model.
+
+By default it runs with a deterministic mock model (`MODEL_PROVIDER=mock`): no key, no cost, offline. To use the real model, create a key in the Anthropic Console **with a monthly spend limit**, then in `.env` set `MODEL_PROVIDER=anthropic` and `MODEL_API_KEY=...`; the key stays in the Python service. Design and guarantees: [docs/architecture/analyst-agent.md](docs/architecture/analyst-agent.md). Evaluation (20 questions, `uv run python -m agent.evaluation`): [tests/evaluation/README.md](tests/evaluation/README.md).
+
 ## Backend API (Spring Boot, Keycloak, tenant-aware)
 
 Users call the Spring Boot backend; it validates the Keycloak token, then calls the Python service with a 60-second service JWT (ADR 0004). The tenant comes from the token only.

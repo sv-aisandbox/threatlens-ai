@@ -46,8 +46,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
             return;
         }
         boolean sync = "POST".equals(request.getMethod()) && request.getRequestURI().endsWith("/sync");
-        int limit = sync ? limits.syncPerMinute() : limits.requestsPerMinute();
-        String key = (sync ? "sync:" : "api:") + auth.getName();
+        boolean analyst = "POST".equals(request.getMethod()) && request.getRequestURI().equals("/api/analyst/ask");
+        int limit = sync ? limits.syncPerMinute() : analyst ? limits.analystPerMinute() : limits.requestsPerMinute();
+        String key = (sync ? "sync:" : analyst ? "analyst:" : "api:") + auth.getName();
         long now = clock.millis();
 
         long retryAfterMillis = 0;

@@ -5,6 +5,7 @@ import ai.threatlens.backend.client.UpstreamExceptions.NotFoundException;
 import ai.threatlens.backend.client.UpstreamExceptions.UpstreamException;
 import ai.threatlens.backend.config.AppProperties;
 import ai.threatlens.backend.model.AffectedAssetsResponse;
+import ai.threatlens.backend.model.AnalystAnswer;
 import ai.threatlens.backend.model.SourceStatus;
 import ai.threatlens.backend.model.SyncAccepted;
 import ai.threatlens.backend.model.VulnerabilityDetails;
@@ -13,6 +14,7 @@ import ai.threatlens.backend.security.CurrentUser;
 import java.net.http.HttpClient;
 import java.net.http.HttpTimeoutException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
@@ -38,6 +40,7 @@ public class IntelligenceClient {
     private static final Logger log = LoggerFactory.getLogger(IntelligenceClient.class);
 
     private final RestClient rest;
+    private final RestClient analystRest;
     private final ServiceTokenIssuer tokens;
 
     public IntelligenceClient(AppProperties properties, ServiceTokenIssuer tokens) {
@@ -45,6 +48,10 @@ public class IntelligenceClient {
         JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(http);
         factory.setReadTimeout(properties.intelligence().readTimeout());
         this.rest = RestClient.builder().baseUrl(properties.intelligence().baseUrl()).requestFactory(factory).build();
+        // Same upstream, longer read timeout: an analyst answer includes a model call and several tool calls.
+        JdkClientHttpRequestFactory analystFactory = new JdkClientHttpRequestFactory(http);
+        analystFactory.setReadTimeout(properties.intelligence().analystReadTimeout());
+        this.analystRest = RestClient.builder().baseUrl(properties.intelligence().baseUrl()).requestFactory(analystFactory).build();
         this.tokens = tokens;
     }
 
@@ -94,6 +101,20 @@ public class IntelligenceClient {
                 .body(SyncAccepted.class));
     }
 
+    /** Ask the analyst. Only the question is sent: tenant and roles travel in the signed service token. */
+    public AnalystAnswer ask(CurrentUser user, String question) {
+        return call(() -> analystRest.post()
+                .uri("/internal/v1/analyst/ask")
+                .headers(h -> authenticate(h, user))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of("question", question))
+                .retrieve()
+                .onStatus(s -> s.isError(), (req, res) -> {
+                    throw mapAnalyst(res.getStatusCode().value());
+                })
+                .body(AnalystAnswer.class));
+    }
+
     private void authenticate(HttpHeaders headers, CurrentUser user) {
         headers.setBearerAuth(tokens.issue(user));
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
@@ -113,6 +134,16 @@ public class IntelligenceClient {
         // 401/403 here mean a configuration problem (secret mismatch), not a user problem.
         log.error("intelligence service answered HTTP {}", status);
         return new UpstreamException(502, "intelligence service error");
+    }
+
+    private static RuntimeException mapAnalyst(int status) {
+        if (status == 429 || status == 503) {
+            return new UpstreamException(503, "analyst busy or unavailable"); // busy or not configured
+        }
+        if (status == 422) {
+            return new IllegalArgumentException("question rejected");
+        }
+        return map(status);
     }
 
     private static <T> T call(Supplier<T> action) {

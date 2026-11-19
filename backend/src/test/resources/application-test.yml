@@ -17,6 +17,8 @@ threatlens:
     jwt-secret: test-only-secret-0123456789abcdef0123456789abcdef
     connect-timeout: 1s
     read-timeout: 2s
+    analyst-read-timeout: 6s
   rate-limit:
     requests-per-minute: 10000
     sync-per-minute: 10000
+    analyst-per-minute: 10000
