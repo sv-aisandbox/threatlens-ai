@@ -13,6 +13,60 @@ Full design: [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md). Build plan: [docs/ROA
 - External threat-feed content is treated as untrusted data.
 - Secrets live in `.env` (git-ignored); only placeholders are committed.
 
+## Architecture
+
+```mermaid
+flowchart LR
+  B[Browser] -->|session cookie| N[Next.js UI<br/>127.0.0.1:3000]
+  N -->|user access token| S[Spring Boot API<br/>127.0.0.1:8080]
+  N -. login PKCE .-> K[Keycloak]
+  S -. validates tokens .-> K
+  S -->|60 s service JWT| P[Python intelligence service<br/>127.0.0.1:8000]
+  P --> M[(Memgraph<br/>graph)]
+  P --> D[(PostgreSQL<br/>sync, audit)]
+  S --> D
+  P --> A[AI analyst agent]
+  A -->|in-process, read-only| T[MCP tools]
+  T --> M
+  A -. optional .-> L[Model provider]
+  P -->|public feeds| F[NVD, CISA KEV]
+```
+
+The browser never holds a token and never talks to the Python service, the databases or the model. Spring Boot is the security boundary; the Python service trusts only its short-lived service token. Details: [web UI](docs/architecture/web-ui.md), [analyst agent](docs/architecture/analyst-agent.md), [graph model](docs/architecture/graph-model.md), [threat model](docs/threat-model/README.md), [decisions](docs/adr/).
+
+## Implemented and planned
+
+Scope baseline: spec section 20. This table says what exists today, not what is intended.
+
+| Area | Status | Notes |
+|---|---|---|
+| NVD CVE sync and CISA KEV flags | Implemented | Manual and API-triggered; real data, recorded fixtures in tests |
+| Synthetic assets, CSV/JSON inventory import with reject report | Implemented | Idempotent re-import |
+| Product/version matching (confirmed, possible, not affected, unknown) | Implemented | Never guesses; ADR 0003 |
+| Memgraph graph, tenant-scoped queries | Implemented | Provenance and timestamps kept |
+| Spring Boot API, Keycloak login, roles, tenant from token | Implemented | Audit trail, rate limits |
+| MCP servers: Vulnerability and Asset (8 read-only tools) | Implemented | Usable from Claude Code through `.mcp.json` |
+| AI analyst with tool discovery, trace, evidence, grounding check | Implemented | Deterministic mock model by default; real-model adapter written, not yet run against a live key |
+| Web UI: overview, sources, CVE page with graph, analyst | Implemented | Browser-tested against the real stack |
+| Tests: unit, integration, tenant isolation, JWT tampering, malformed input, e2e | Implemented | See "Tests and CI" |
+| JSON logs with correlation ids and secret redaction, admin metrics | Implemented | |
+| MITRE ATT&CK, STIX/TAXII, URL import with SSRF protection | Planned | Needs its own threat review |
+| Threat Actor, Attack Path, Incident and Risk MCP groups; multi-hop path analysis | Planned | Demo step 7 and 8 of spec section 18 (attack paths) are not available yet |
+| Scheduler and queues, semantic tool search, load and ZAP tests | Planned | |
+| Hosted deployment, SSO beyond local Keycloak, enterprise integrations | Planned | Local only today |
+
+## Tests and CI
+
+```bash
+cd intelligence-service && uv run pytest                                      # unit and integration (needs docker compose --profile test up -d --wait memgraph-test)
+cd intelligence-service && uv run pytest ../tests/security -c pyproject.toml --rootdir .   # tenant isolation, JWT tampering, malformed input
+cd backend && ./mvnw test                                                    # API, security boundary, audit (Docker for Testcontainers)
+cd frontend && pnpm test && pnpm typecheck && pnpm lint && pnpm build        # UI
+cd frontend && pnpm e2e                                                      # browser tests against the running stack
+```
+
+GitHub Actions ([.github/workflows](.github/workflows)) runs all of the above on every pull request, the browser tests on pull requests and `main` (in the runner's Chrome), CodeQL and secret scanning, and Dependabot proposes dependency updates. CI uses recorded fixtures and the mock model: it needs no real keys.
+
 ## Quick start
 
 Prerequisite: Docker Desktop (WSL 2 backend, at least 8 GB RAM). On Windows, run the commands below from Git Bash or WSL.

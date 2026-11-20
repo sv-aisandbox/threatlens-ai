@@ -12,6 +12,31 @@ export const dynamic = "force-dynamic";
 const SYNC_ID: Record<string, string> = { nvd: "nvd", cisa_kev: "kev" };
 const LABELS: Record<string, string> = { nvd: "NVD", cisa_kev: "CISA KEV" };
 
+const EXPECTED = ["nvd", "cisa_kev"];
+
+/** A source that has never run must still be listed (as "never run"), so a missing sync is visible and can be started. */
+function withExpected(rows: SourceStatus[]): SourceStatus[] {
+  const missing = EXPECTED.filter((id) => !rows.some((r) => r.source_id === id)).map(
+    (source_id): SourceStatus => ({
+      source_id,
+      last_attempt_at: null,
+      last_success_at: null,
+      last_status: null,
+      records_received: null,
+      records_created: null,
+      records_updated: null,
+      records_rejected: null,
+      error_summary: null,
+      source_modified_at: null,
+      sync_cursor_at: null,
+    }),
+  );
+  return [
+    ...EXPECTED.map((id) => rows.find((r) => r.source_id === id) ?? missing.find((m) => m.source_id === id)!),
+    ...rows.filter((r) => !EXPECTED.includes(r.source_id)),
+  ];
+}
+
 export default async function SourcesPage() {
   const { token, viewer } = await requireViewer();
   const admin = isAdmin(viewer.roles);
@@ -43,7 +68,7 @@ export default async function SourcesPage() {
                 </tr>
               </thead>
               <tbody>
-                {status.data.map((s) => (
+                {withExpected(status.data).map((s) => (
                   <tr key={s.source_id}>
                     <Td>{LABELS[s.source_id] ?? s.source_id}</Td>
                     <Td>{formatTime(s.last_attempt_at)}</Td>
@@ -71,7 +96,6 @@ export default async function SourcesPage() {
                 ))}
               </tbody>
             </table>
-            {status.data.length === 0 && <p className="text-sm text-muted">No source has been synced yet.</p>}
           </div>
         )}
         {!admin && <p className="mt-3 text-xs text-muted">Only administrators can start a sync.</p>}

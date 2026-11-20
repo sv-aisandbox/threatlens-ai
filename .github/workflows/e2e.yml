@@ -1,0 +1,97 @@
+name: End-to-end (browser)
+
+# Drives the whole stack through a real browser and the real Keycloak login. Runs on main, on pull requests and on demand.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      INTERNAL_JWT_SECRET: ci-only-internal-secret-0123456789abcdef0123456789abcdef
+      NEXTAUTH_SECRET: ci-only-nextauth-secret-0123456789abcdef
+      NEXTAUTH_URL: http://127.0.0.1:3000
+      KEYCLOAK_ISSUER: http://127.0.0.1:8081/realms/threatlens
+      KEYCLOAK_WEB_CLIENT_ID: threatlens-web
+      BACKEND_URL: http://127.0.0.1:8080
+      MODEL_PROVIDER: mock
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          enable-cache: true
+          cache-dependency-glob: intelligence-service/uv.lock
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: frontend/package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Infrastructure (placeholders only in .env)
+        run: |
+          cp .env.example .env
+          echo "INTERNAL_JWT_SECRET=$INTERNAL_JWT_SECRET" >> .env
+          docker compose up -d --wait
+          docker compose --profile migrate run --rm flyway
+          docker compose --profile auth up -d --wait keycloak
+
+      - name: Demo data (recorded fixtures, no network)
+        working-directory: intelligence-service
+        run: |
+          uv sync --frozen
+          uv run python -m ingestion.seed_loader --reset
+          uv run python -m ingestion.demo_data --offline
+
+      - name: Start the Python service, the backend and the web UI
+        run: |
+          set -a; . ./.env; set +a
+          mkdir -p logs
+          (cd intelligence-service && nohup uv run uvicorn app.api:create_app --factory --host 127.0.0.1 --port 8000 > ../logs/python.log 2>&1 &)
+          (cd backend && nohup ./mvnw -B -ntp -q spring-boot:run > ../logs/backend.log 2>&1 &)
+          (cd frontend && pnpm install --frozen-lockfile && pnpm build && nohup pnpm exec next start --hostname 127.0.0.1 --port 3000 > ../logs/web.log 2>&1 &)
+          for url in http://127.0.0.1:8000/internal/v1/overview http://127.0.0.1:8080/actuator/health http://127.0.0.1:3000/login; do
+            code=000
+            for i in $(seq 1 90); do
+              code=$(curl -s -o /dev/null -w '%{http_code}' "$url" || true)
+              [ "$code" != "000" ] && break
+              sleep 3
+            done
+            echo "$url -> $code"
+            if [ "$code" = "000" ]; then echo "not reachable"; tail -n 50 logs/*.log; exit 1; fi
+          done
+
+      - name: Browser tests (the runner's preinstalled Google Chrome; Playwright's own build does not support this OS image)
+        working-directory: frontend
+        run: |
+          google-chrome --version
+          pnpm e2e
+
+      - name: Logs on failure
+        if: failure()
+        run: tail -n 80 logs/*.log || true
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: e2e-traces
+          path: |
+            frontend/test-results
+            logs

@@ -12,6 +12,7 @@ import logging
 import os
 import re
 import threading
+import time
 import uuid
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
@@ -19,10 +20,12 @@ from datetime import datetime
 from typing import Annotated, Any, Literal
 
 import psycopg
+from fastapi.responses import PlainTextResponse
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Path, Query, Request
 from neo4j import Driver
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.observability import Metrics, configure_logging, correlation_id
 from app.config import get_driver, nvd_api_key, pg_conninfo
 from agent.agent import AnalystAgent, AnalystUnavailable, Caller, QuestionError
 from agent.factory import build_agent
@@ -84,8 +87,9 @@ def create_app(
     kev_fetch: Callable[[], Any] | None = None,
     analyst_factory: Callable[[], AnalystAgent] | None = None,
 ) -> FastAPI:
-    if not logging.getLogger().handlers:  # visible request logs (with correlation ids) when run by uvicorn
-        logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    if not logging.getLogger().handlers:  # JSON request logs (correlation id, secrets redacted) when run by uvicorn
+        configure_logging()
+    metrics = Metrics()
     secret = validate_secret(jwt_secret if jwt_secret is not None else os.environ.get("INTERNAL_JWT_SECRET"))
     conn_factory = conn_factory or (lambda: psycopg.connect(pg_conninfo()))
     key = nvd_api_key()
@@ -116,9 +120,18 @@ def create_app(
         if not CORRELATION_RE.fullmatch(cid):
             cid = str(uuid.uuid4())
         request.state.correlation_id = cid
-        response = await call_next(request)
+        token = correlation_id.set(cid)
+        started = time.perf_counter()
+        try:
+            response = await call_next(request)
+        finally:
+            correlation_id.reset(token)
         response.headers["X-Correlation-Id"] = cid
-        logger.info("%s %s -> %s cid=%s", request.method, request.url.path, response.status_code, cid)
+        route = getattr(request.scope.get("route"), "path", None) or "unmatched"  # template, never the raw path
+        metrics.observe(request.method, route, response.status_code, time.perf_counter() - started)
+        if response.status_code in (401, 403):
+            metrics.count("auth_denied")
+        logger.info("%s %s -> %s cid=%s", request.method, route, response.status_code, cid)
         return response
 
     def auth(*roles: str):
@@ -200,6 +213,10 @@ def create_app(
 
         background.add_task(job)
         return {"accepted": True, "source_id": source_id}
+
+    @app.get("/internal/v1/metrics", response_class=PlainTextResponse)
+    def metrics_endpoint(principal: Principal = admin) -> str:
+        return metrics.render()
 
     @app.get("/internal/v1/overview")
     def overview(principal: Principal = anyone) -> dict[str, Any]:
