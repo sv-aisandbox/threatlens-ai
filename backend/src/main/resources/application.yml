@@ -23,11 +23,16 @@ spring:
     # Migrations are applied by the Flyway container (docker compose --profile migrate run --rm flyway), ADR 0010.
     enabled: false
 
+logging:
+  structured:
+    format:
+      console: logstash   # one JSON object per line; the correlation id (MDC key cid) is a field
+
 management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,metrics
   endpoint:
     health:
       show-details: never

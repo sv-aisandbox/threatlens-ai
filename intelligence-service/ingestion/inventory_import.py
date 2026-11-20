@@ -10,7 +10,6 @@ import io
 import json
 import re
 import uuid
-from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any, Literal

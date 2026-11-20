@@ -10,7 +10,7 @@ import re
 from typing import Any
 
 from agent.models import ModelTurn, ToolCall, Usage
-from agent.registry import ASSET_RE, CVE_RE, TENANT_RE, detect_entities
+from agent.registry import TENANT_RE, detect_entities
 
 _REFUSE_ATTACK = re.compile(r"attack path|lateral movement|blast radius|path(s)? to (our )?(critical|domain)", re.I)
 _REFUSE_EXPLOIT = re.compile(r"(write|create|give|generate|provide).{0,30}(exploit|payload|poc|malware|ransomware)|weaponi[sz]e", re.I)
