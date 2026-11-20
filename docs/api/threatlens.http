@@ -214,3 +214,30 @@ Content-Type: application/json
 
 # Health (public, no details)
 GET {{api}}/actuator/health
+
+
+###
+
+# --- Added in Module 09 (web UI endpoints) ---
+
+# Overview: counts, per-source freshness, inventory freshness, stale warnings
+GET {{api}}/api/overview
+Authorization: Bearer {{carol}}
+
+###
+
+# Search vulnerabilities (validated: query 2-100 chars, minCvss 0-10, limit 1-50)
+GET {{api}}/api/vulnerabilities?query=log4j&kevOnly=true&limit=5
+Authorization: Bearer {{carol}}
+
+###
+
+# Graph of your own assets, their software and one CVE
+GET {{api}}/api/vulnerabilities/CVE-2021-44228/graph
+Authorization: Bearer {{bob}}
+
+###
+
+# Inventory import history (ADMIN, SECURITY_ANALYST); upload is ADMIN only
+GET {{api}}/api/inventory/imports
+Authorization: Bearer {{bob}}

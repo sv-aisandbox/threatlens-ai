@@ -6,6 +6,8 @@ no route accepts a tenant parameter, and ignored query/header tenant hints canno
 """
 
 import asyncio
+import base64
+import binascii
 import logging
 import os
 import re
@@ -25,10 +27,14 @@ from app.config import get_driver, nvd_api_key, pg_conninfo
 from agent.agent import AnalystAgent, AnalystUnavailable, Caller, QuestionError
 from agent.factory import build_agent
 from agent.models import ModelError
+from correlation.match_service import run_matching
 from app.service_auth import AuthError, Principal, validate_secret, verify_service_token
 from graph_queries.affected_assets import DEFAULT_STATUSES, get_affected_assets_with_freshness
-from graph_queries.vulnerability import get_vulnerability
-from ingestion import source_sync, sync
+from graph_queries.graph_view import get_vulnerability_graph
+from graph_queries.overview import get_overview
+from graph_queries.vulnerability import get_vulnerability, search_vulnerabilities
+from ingestion import inventory_import, source_sync, sync
+from ingestion.inventory_import import InventoryFileError
 from ingestion.nvd_client import NvdClient
 from normalization.nvd import CVE_ID_RE
 
@@ -54,6 +60,16 @@ class AskRequest(BaseModel):
 
 
 MAX_CONCURRENT_ASKS = 4
+MAX_UPLOAD_BASE64 = 7_500_000  # about 5 MB of file content
+
+
+class InventoryImportRequest(BaseModel):
+    """A file sent as base64 so the importer sees the exact bytes (and can reject invalid UTF-8)."""
+
+    model_config = ConfigDict(extra="forbid")
+    filename: str = Field(min_length=1, max_length=200)
+    format: Literal["csv", "json"]
+    content_base64: str = Field(min_length=1, max_length=MAX_UPLOAD_BASE64)
 
 
 class ImportCveRequest(BaseModel):
@@ -184,6 +200,62 @@ def create_app(
 
         background.add_task(job)
         return {"accepted": True, "source_id": source_id}
+
+    @app.get("/internal/v1/overview")
+    def overview(principal: Principal = anyone) -> dict[str, Any]:
+        with conn_factory() as conn:
+            return get_overview(graph(), conn, principal.tenant_id)
+
+    @app.get("/internal/v1/vulnerabilities")
+    def vulnerability_search(
+        query: Annotated[str | None, Query(min_length=2, max_length=100)] = None,
+        kev_only: bool = False,
+        min_cvss: Annotated[float | None, Query(ge=0, le=10)] = None,
+        limit: Annotated[int, Query(ge=1, le=50)] = 20,
+        _: Principal = anyone,
+    ) -> dict[str, Any]:
+        return search_vulnerabilities(graph(), query, kev_only, min_cvss, limit)
+
+    @app.get("/internal/v1/vulnerabilities/{cve_id}/graph")
+    def vulnerability_graph(cve_id: CveId, include_not_affected: bool = False, principal: Principal = anyone) -> dict[str, Any]:
+        found = get_vulnerability_graph(graph(), principal.tenant_id, cve_id, include_not_affected)
+        if found is None:
+            raise HTTPException(status_code=404, detail="not found")
+        return found
+
+    @app.post("/internal/v1/inventory/import")
+    def inventory_upload(body: InventoryImportRequest, principal: Principal = admin) -> dict[str, Any]:
+        try:
+            data = base64.b64decode(body.content_base64, validate=True)
+        except (binascii.Error, ValueError):
+            raise HTTPException(status_code=422, detail={"code": "bad_encoding", "details": []}) from None
+        try:
+            with conn_factory() as conn:
+                report = inventory_import.import_inventory(graph(), conn, principal.tenant_id, data, body.format, body.filename)
+        except InventoryFileError as exc:
+            # Only the stable code and names from our own vocabulary leave the service, never file content.
+            raise HTTPException(status_code=422, detail={"code": exc.code, "details": exc.details}) from None
+        matching = None
+        if report.software_ids:
+            summary = run_matching(graph(), report.software_ids)
+            matching = {k: getattr(summary, k) for k in ("software_considered", "created", "updated", "unchanged", "removed")}
+        return {**report.as_dict(), "format": body.format, "matching": matching}
+
+    @app.get("/internal/v1/inventory/imports")
+    def inventory_imports(principal: Principal = Depends(auth("ADMIN", "SECURITY_ANALYST"))) -> list[dict[str, Any]]:
+        with conn_factory() as conn:
+            return inventory_import.list_imports(conn, principal.tenant_id)
+
+    @app.get("/internal/v1/inventory/imports/{import_id}")
+    def inventory_import_detail(
+        import_id: Annotated[str, Path(pattern=r"^[0-9a-fA-F-]{36}$")],
+        principal: Principal = Depends(auth("ADMIN", "SECURITY_ANALYST")),
+    ) -> dict[str, Any]:
+        with conn_factory() as conn:
+            found = inventory_import.get_import(conn, principal.tenant_id, import_id)
+        if found is None:
+            raise HTTPException(status_code=404, detail="not found")
+        return found
 
     analyst_lock = threading.Lock()
     analyst_cache: dict[str, AnalystAgent] = {}

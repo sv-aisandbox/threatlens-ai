@@ -68,6 +68,7 @@ class AnalystApiTest extends AbstractApiTest {
                     .body("grounding.ok", equalTo(true))
                     .body("trace[0].tool", equalTo("get_affected_assets"))
                     .body("trace[0].args.cve_id", equalTo("CVE-2021-44228"))
+                    .body("trace[0].result_summary", equalTo("1 asset(s): 1 confirmed, 0 possible, 0 unknown"))
                     .body("usage.provider", equalTo("mock"))
                     .body("$", org.hamcrest.Matchers.not(org.hamcrest.Matchers.hasKey("unexpected")))
                     .body("trace[0]", org.hamcrest.Matchers.not(org.hamcrest.Matchers.hasKey("unexpected")));

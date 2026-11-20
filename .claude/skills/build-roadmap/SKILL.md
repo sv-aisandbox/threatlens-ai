@@ -37,7 +37,7 @@ Status values: `todo` · `in-progress` · `done`
 | 06 | Backend API and security boundary | 5 | 5 Backend API | 1–1½ wk | done | [module-06](modules/module-06.md) |
 | 07 | MCP tools | 6 | 6 MCP | 1 wk | in-progress | [module-07](modules/module-07.md) |
 | 08 | Tool registry and AI agent | 7 | 7 AI investigation | 1–1½ wk | in-progress | [module-08](modules/module-08.md) |
-| 09 | Basic web UI | 8 | 8 Basic web UI | 1½–2 wk | todo | [module-09](modules/module-09.md) |
+| 09 | Basic web UI | 8 | 8 Basic web UI | 1½–2 wk | in-progress | [module-09](modules/module-09.md) |
 | 10 | Quality, CI, portfolio readiness | 9 | 9 Portfolio readiness | 1 wk | todo | [module-10](modules/module-10.md) |
 
 ## Required MCPs per module

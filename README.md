@@ -91,6 +91,29 @@ The repository's [`.mcp.json`](.mcp.json) already defines both servers: open the
 
 By default it runs with a deterministic mock model (`MODEL_PROVIDER=mock`): no key, no cost, offline. To use the real model, create a key in the Anthropic Console **with a monthly spend limit**, then in `.env` set `MODEL_PROVIDER=anthropic` and `MODEL_API_KEY=...`; the key stays in the Python service. Design and guarantees: [docs/architecture/analyst-agent.md](docs/architecture/analyst-agent.md). Evaluation (20 questions, `uv run python -m agent.evaluation`): [tests/evaluation/README.md](tests/evaluation/README.md).
 
+## Run everything and use the web UI
+
+One command starts the databases, Keycloak, the Python service, the Spring backend and the web UI, loads the synthetic demo graph plus the real CVE-2021-44228 and CISA KEV flags, and prints the URLs and demo users. Needs Docker Desktop, [uv](https://docs.astral.sh/uv/), JDK 21, Node 24+ and pnpm.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\start-all.ps1            # add -Offline to use recorded fixtures instead of downloading
+powershell -ExecutionPolicy Bypass -File scripts\stop-all.ps1             # -KeepInfra to leave the databases up, -Reset to delete their data
+```
+
+Open http://127.0.0.1:3000 and sign in (password `demo-password`):
+
+| Step | Do this | You should see |
+|---|---|---|
+| 1 | Sign in as `bob-analyst`; the overview opens | Counts, KEV, affected critical assets, last successful sync per source, a stale-data banner (the demo inventory is old on purpose) |
+| 2 | Vulnerabilities, search `log4j`, open CVE-2021-44228 | Description, KEV status, source evidence links |
+| 3 | Same page, scroll down | Your affected assets as confirmed / possible / unknown badges, and the asset to software to CVE graph |
+| 4-6 | AI analyst, press Ask | The answer, findings grouped by certainty, the evidence, and a tool trace you can expand to see each tool, its arguments and a result summary |
+| 9 | Sign out, sign in as `carol-viewer`, open Data sources, then AI analyst and Ask | No sync or upload buttons; the analyst request is refused by the server ("Access denied") |
+| extra | `alice-admin`: Data sources, upload a CSV | Admin buttons appear; rejected rows are listed |
+| extra | `dave-analyst` (other organization), same CVE | Only that organization's assets |
+
+The AI analyst uses the built-in mock model unless you set `MODEL_PROVIDER=anthropic` (see "AI analyst"). Browser tests (they drive the running stack through the real Keycloak login and need Google Chrome): `cd frontend && pnpm install && pnpm e2e`. Design: [docs/architecture/web-ui.md](docs/architecture/web-ui.md).
+
 ## Backend API (Spring Boot, Keycloak, tenant-aware)
 
 Users call the Spring Boot backend; it validates the Keycloak token, then calls the Python service with a 60-second service JWT (ADR 0004). The tenant comes from the token only.

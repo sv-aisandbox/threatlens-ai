@@ -45,7 +45,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
             chain.doFilter(request, response); // unauthenticated requests are rejected further down the chain
             return;
         }
-        boolean sync = "POST".equals(request.getMethod()) && request.getRequestURI().endsWith("/sync");
+        boolean sync = "POST".equals(request.getMethod())
+                && (request.getRequestURI().endsWith("/sync") || request.getRequestURI().equals("/api/inventory/import"));
         boolean analyst = "POST".equals(request.getMethod()) && request.getRequestURI().equals("/api/analyst/ask");
         int limit = sync ? limits.syncPerMinute() : analyst ? limits.analystPerMinute() : limits.requestsPerMinute();
         String key = (sync ? "sync:" : analyst ? "analyst:" : "api:") + auth.getName();

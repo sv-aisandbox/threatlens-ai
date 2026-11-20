@@ -17,6 +17,26 @@ public final class UpstreamExceptions {
         }
     }
 
+    /** The uploaded file cannot be used as a whole. `code` comes from a fixed set; `details` from our own vocabulary. */
+    public static class InventoryRejectedException extends RuntimeException {
+        private final String code;
+        private final java.util.List<String> details;
+
+        public InventoryRejectedException(String code, java.util.List<String> details) {
+            super("inventory file rejected");
+            this.code = code;
+            this.details = details;
+        }
+
+        public String code() {
+            return code;
+        }
+
+        public java.util.List<String> details() {
+            return details;
+        }
+    }
+
     /** The intelligence service failed or is unreachable. {@code status} is 502 or 504. */
     public static class UpstreamException extends RuntimeException {
         private final int status;

@@ -155,10 +155,10 @@ class AnalystAgent:
                         entry: dict[str, Any] = {"step": steps, "tool": call.name, "args": call.input}
                         if calls_made >= cfg.max_tool_calls:
                             limit_hit = True
-                            entry.update(outcome="refused:limit")
+                            entry.update(outcome="refused:limit", result_summary="refused: tool call limit reached")
                             content, is_error = LIMIT_NOTE, True
                         elif call.name not in offered_names:
-                            entry.update(outcome="refused:not_offered")
+                            entry.update(outcome="refused:not_offered", result_summary="refused: tool was not offered for this question")
                             content, is_error = f"Tool {call.name!r} is not available for this question.", True
                         else:
                             calls_made += 1
@@ -168,6 +168,7 @@ class AnalystAgent:
                                 results.append((call.name, body))
                             entry.update(
                                 outcome="ok" if not outcome_obj.is_error else f"error:{outcome_obj.error_code}",
+                                result_summary=assemble.summarize_result(call.name, body),
                                 latency_ms=outcome_obj.latency_ms, injection_suspected=flagged,
                                 tool_correlation_id=body.get("correlation_id") or (body.get("error") or {}).get("correlation_id"),
                             )

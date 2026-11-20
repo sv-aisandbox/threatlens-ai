@@ -5,6 +5,35 @@ from typing import Any
 STATUSES = ("confirmed", "possible", "unknown")
 
 
+def summarize_result(tool: str, body: dict[str, Any]) -> str:
+    """One line describing a tool result, built from structured fields only (counts, ids, scores)."""
+    if "error" in body:
+        return f"error: {body['error'].get('code', 'unknown')}"
+    if tool == "get_affected_assets":
+        rows = body.get("results", [])
+        by = {s: sum(1 for r in rows if r.get("match_status") == s) for s in STATUSES}
+        known = "" if body.get("cve_known", True) else "; CVE not in the local database"
+        return f"{len(rows)} asset(s): {by['confirmed']} confirmed, {by['possible']} possible, {by['unknown']} unknown{known}"
+    if tool == "get_vulnerability_details":
+        v = body.get("vulnerability") or {}
+        return f"{v.get('cve_id')}: CVSS {v.get('cvss_score')}, {'on the CISA KEV list' if v.get('kev_listed') else 'not on the KEV list'}"
+    if tool == "get_vulnerability_evidence":
+        return f"{len(body.get('evidence', []))} evidence record(s)"
+    if tool == "search_vulnerabilities":
+        return f"{len(body.get('results', []))} vulnerabilit(ies){' (truncated)' if body.get('truncated') else ''}"
+    if tool == "search_assets":
+        return f"{len(body.get('results', []))} asset(s){' (truncated)' if body.get('truncated') else ''}"
+    if tool == "get_asset_details":
+        a = body.get("asset") or {}
+        return f"{a.get('asset_id')}: {a.get('software_count')} software item(s), {a.get('confirmed_vulnerabilities')} confirmed vulnerabilit(ies)"
+    if tool == "get_asset_software":
+        findings = sum(len(sw.get("findings", [])) for sw in body.get("software", []))
+        return f"{len(body.get('software', []))} software item(s), {findings} finding(s)"
+    if tool == "get_critical_assets":
+        return f"{len(body.get('results', []))} critical asset(s)"
+    return "ok"
+
+
 def _evidence_ids(evidence: list[dict[str, Any]] | None) -> list[str]:
     return [e["evidence_id"] for e in evidence or [] if e.get("evidence_id")]
 

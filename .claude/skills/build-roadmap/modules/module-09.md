@@ -11,13 +11,13 @@
 | Built-in browser / Claude in Chrome | Visual check of pages | Optional |
 
 ## Tasks
-- [ ] 8.1 **(Claude)** Next.js (App Router, TypeScript, Tailwind); OIDC login via Keycloak (Auth.js or similar). Browser talks only to Spring Boot.
-- [ ] 8.2 **(Claude)** Security Overview: vulnerability counts, KEV count, affected critical assets, **last successful sync per source** (spec §20.3).
-- [ ] 8.3 **(Claude)** Data Sources page: sync status table, manual sync (admin), inventory upload with reject report.
-- [ ] 8.4 **(Claude)** Vulnerability detail + affected-assets view with match-status badges and evidence links.
-- [ ] 8.5 **(Claude)** AI Analyst: chat, expandable tool trace (tool, args, result summary), evidence panel, staleness banner.
-- [ ] 8.6 **(Claude)** Small Cytoscape.js view: asset → software → CVE for one CVE.
-- [ ] 8.7 **(Claude)** Playwright tests: login, overview loads, affected-assets view, analyst answer shows trace, viewer cannot trigger a sync.
+- [x] 8.1 **(Claude)** Next.js (App Router, TypeScript, Tailwind); OIDC login via Keycloak (Auth.js or similar). Browser talks only to Spring Boot.
+- [x] 8.2 **(Claude)** Security Overview: vulnerability counts, KEV count, affected critical assets, **last successful sync per source** (spec §20.3).
+- [x] 8.3 **(Claude)** Data Sources page: sync status table, manual sync (admin), inventory upload with reject report.
+- [x] 8.4 **(Claude)** Vulnerability detail + affected-assets view with match-status badges and evidence links.
+- [x] 8.5 **(Claude)** AI Analyst: chat, expandable tool trace (tool, args, result summary), evidence panel, staleness banner.
+- [x] 8.6 **(Claude)** Small Cytoscape.js view: asset → software → CVE for one CVE.
+- [x] 8.7 **(Claude)** Playwright tests: login, overview loads, affected-assets view, analyst answer shows trace, viewer cannot trigger a sync.
 
 ## Best practices for this module
 - Strict TypeScript, ESLint + Prettier; no secrets in `NEXT_PUBLIC_*`.

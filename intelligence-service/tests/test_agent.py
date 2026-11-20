@@ -72,6 +72,7 @@ async def test_demo_question_answers_with_separated_findings_evidence_and_trace(
     assert [(t["step"], t["tool"], t["outcome"]) for t in answer["trace"]] == [(1, "get_affected_assets", "ok")]
     assert answer["trace"][0]["args"] == {"cve_id": CVE, "environment": "production"}
     assert answer["trace"][0]["latency_ms"] >= 0 and answer["trace"][0]["tool_correlation_id"]
+    assert answer["trace"][0]["result_summary"] == "3 asset(s): 1 confirmed, 1 possible, 1 unknown"
     assert answer["usage"]["tool_calls"] == 1 and answer["usage"]["provider"] == "mock" and answer["usage"]["cost_usd"] == 0.0
 
 
