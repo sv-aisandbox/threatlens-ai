@@ -1,0 +1,17 @@
+# Extends the default rules. Allowlist only published demo values and CI placeholders, never real secrets.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Placeholders and the published demo realm"
+paths = [
+  '''auth/keycloak/threatlens-realm\.json''',
+  '''\.env\.example''',
+  '''frontend/\.env\.example''',
+  '''\.github/workflows/e2e\.yml''',
+  '''docs/api/threatlens\.http''',
+]
+regexes = [
+  '''demo-password''',
+  '''change-me[A-Za-z0-9-]*''',
+]

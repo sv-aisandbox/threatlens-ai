@@ -16,10 +16,10 @@
 
 ## Tasks
 - [ ] 9.1 **(Claude)** GitHub Actions: lint + unit tests per service, integration tests with service containers, Playwright on main, dependency and secret scanning (Dependabot, CodeQL or similar).
-- [ ] 9.2 **(Claude)** `tests/security/`: tenant isolation across REST, MCP and agent; malformed tool args; JWT tampering.
-- [ ] 9.3 **(Claude)** Structured JSON logs with correlation IDs; secrets redacted; basic metrics endpoint.
-- [ ] 9.4 **(Claude)** `docs/threat-model/` STRIDE-style threat model for the MVP.
-- [ ] 9.5 **(Claude)** README: architecture diagram, quick start, demo script, **implemented vs planned** table (spec §18).
+- [x] 9.2 **(Claude)** `tests/security/`: tenant isolation across REST, MCP and agent; malformed tool args; JWT tampering.
+- [x] 9.3 **(Claude)** Structured JSON logs with correlation IDs; secrets redacted; basic metrics endpoint.
+- [x] 9.4 **(Claude)** `docs/threat-model/` STRIDE-style threat model for the MVP.
+- [x] 9.5 **(Claude)** README: architecture diagram, quick start, demo script, **implemented vs planned** table (spec §18).
 - [ ] 9.6 **(you)** Record 5-minute demo video and screenshots; make repo public when ready.
 
 ## Post-MVP backlog (do NOT start before this module is done)
