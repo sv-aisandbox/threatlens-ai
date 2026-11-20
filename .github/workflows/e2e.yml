@@ -1,7 +1,8 @@
 name: End-to-end (browser)
 
-# Drives the whole stack through a real browser and the real Keycloak login. Runs on main and on demand.
+# Drives the whole stack through a real browser and the real Keycloak login. Runs on main, on pull requests and on demand.
 on:
+  pull_request:
   push:
     branches: [main]
   workflow_dispatch:
