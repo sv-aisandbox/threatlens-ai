@@ -28,7 +28,7 @@
     "@playwright/test": "1.56.0",
     "@tailwindcss/postcss": "4.3.5",
     "@types/cytoscape": "3.31.0",
-    "@types/node": "24.9.1",
+    "@types/node": "26.6.6",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "eslint": "9.38.0",
