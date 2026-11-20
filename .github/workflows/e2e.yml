@@ -79,15 +79,11 @@ jobs:
             if [ "$code" = "000" ]; then echo "not reachable"; tail -n 50 logs/*.log; exit 1; fi
           done
 
-      - name: Install the browser
+      - name: Browser tests (the runner's preinstalled Google Chrome; Playwright's own build does not support this OS image)
         working-directory: frontend
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: Browser tests
-        working-directory: frontend
-        run: pnpm e2e
-        env:
-          E2E_BROWSER_CHANNEL: chromium
+        run: |
+          google-chrome --version
+          pnpm e2e
 
       - name: Logs on failure
         if: failure()
