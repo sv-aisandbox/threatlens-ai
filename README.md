@@ -65,7 +65,7 @@ cd frontend && pnpm test && pnpm typecheck && pnpm lint && pnpm build        # U
 cd frontend && pnpm e2e                                                      # browser tests against the running stack
 ```
 
-GitHub Actions ([.github/workflows](.github/workflows)) runs all of the above except the browser tests on every pull request, the browser tests on `main`, CodeQL and secret scanning, and Dependabot proposes dependency updates. CI uses recorded fixtures and the mock model: it needs no real keys.
+GitHub Actions ([.github/workflows](.github/workflows)) runs all of the above on every pull request, the browser tests on pull requests and `main` (in the runner's Chrome), CodeQL and secret scanning, and Dependabot proposes dependency updates. CI uses recorded fixtures and the mock model: it needs no real keys.
 
 ## Quick start
 

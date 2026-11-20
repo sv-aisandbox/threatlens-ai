@@ -15,7 +15,7 @@
 - Hosting/domain (A8/A9) are **post-MVP**; decide only after local verification.
 
 ## Tasks
-- [ ] 9.1 **(Claude)** GitHub Actions: lint + unit tests per service, integration tests with service containers, Playwright on main, dependency and secret scanning (Dependabot, CodeQL or similar).
+- [x] 9.1 **(Claude)** GitHub Actions: lint + unit tests per service, integration tests with service containers, Playwright on main, dependency and secret scanning (Dependabot, CodeQL or similar).
 - [x] 9.2 **(Claude)** `tests/security/`: tenant isolation across REST, MCP and agent; malformed tool args; JWT tampering.
 - [x] 9.3 **(Claude)** Structured JSON logs with correlation IDs; secrets redacted; basic metrics endpoint.
 - [x] 9.4 **(Claude)** `docs/threat-model/` STRIDE-style threat model for the MVP.
